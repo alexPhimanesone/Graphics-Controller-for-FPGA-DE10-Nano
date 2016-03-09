@@ -28,7 +28,6 @@ TBSRC     = $(wildcard $(TBDIR)/*.sv)
 DEP      += $(patsubst $(TBDIR)/%.sv,$(WORK_DIR)/.%.compiled,${TBSRC})
 
 
-
 all: simu_batch
 
 simu_batch: compile
@@ -68,3 +67,8 @@ $(WORK_DIR)/work: $(WORK_DIR)
 
 clean:
 	rm -rf $(WORK_DIR)
+
+# Les interfaces on besoin du générateur de paquets
+$(WORK_DIR)/.wshb_m.compiled:$(WORK_DIR)/.packet.compiled
+$(WORK_DIR)/.wshb_s.compiled:$(WORK_DIR)/.packet.compiled
+
