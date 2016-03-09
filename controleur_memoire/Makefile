@@ -8,12 +8,12 @@ WORK_DIR = work
 #VPATH := ${TOPDIR} ${TOPDIR}/.. 
 
 # Whisbone interface sources
-WSHBSRCDIR  = $(TOPDIR)/wshb_if
+WSHBSRCDIR  = $(TOPDIR)/../wshb_if
 WSHBSRC     = $(wildcard $(WSHBSRCDIR)/*.sv)
 DEP         = $(patsubst $(WSHBSRCDIR)/%.sv,$(WORK_DIR)/.%.compiled,${WSHBSRC})
 
 # Whishbone testbench sources
-WSHBTBSRCDIR  = $(TOPDIR)/wshb_if/testbench
+WSHBTBSRCDIR  = $(TOPDIR)/../wshb_if/testbench
 WSHBTBSRC     = $(wildcard $(WSHBTBSRCDIR)/*.sv)
 DEP          += $(patsubst $(WSHBTBSRCDIR)/%.sv,$(WORK_DIR)/.%.compiled,${WSHBTBSRC})
 
