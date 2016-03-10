@@ -1,5 +1,5 @@
 #
-.PHONY: clean all simu_batch compile simu_gui
+.PHONY: clean all simu_batch compile simu_gui info
 
 TOPDIR = $(shell pwd)
 TB_TOP = testbench_top
@@ -27,6 +27,15 @@ TBDIR     = $(TOPDIR)/wb_bram_tb_src
 TBSRC     = $(wildcard $(TBDIR)/*.sv)
 DEP      += $(patsubst $(TBDIR)/%.sv,$(WORK_DIR)/.%.compiled,${TBSRC})
 
+
+info: 
+	@echo "Les commandes possibles sont:"
+	@echo "make compile    : compilation des codes (module à tester et testbenchs)"
+	@echo "make simu_batch : simulation en mode terminal, avec simple affichage des résultats des tests"
+	@echo "make simu_gui   : simulation en mode graphique pour faire un debug de votre code."
+	@echo "make all        : équivalent à simu_gui"
+	@echo "make info       : ce message"
+	@echo "make clean      : nettoyage des fichiers inutiles"
 
 all: simu_batch
 
