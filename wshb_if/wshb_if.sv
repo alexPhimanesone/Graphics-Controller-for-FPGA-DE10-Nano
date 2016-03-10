@@ -24,12 +24,12 @@
 `timescale 1ns/10ps
 
 
-interface wshb_if #(parameter TB_MASTER=0,TB_SLAVE=0) (input logic clk, input logic rst) ;                
+interface wshb_if #(parameter DATA_BYTES=4,TB_MASTER=0,TB_SLAVE=0) (input logic clk, input logic rst) ;                
   // WISHBONE  signals                                                
-  logic  [31:0]  dat_sm, dat_ms ;                         
+  logic  [8*DATA_BYTES-1:0]  dat_sm, dat_ms ;                         
   logic  [31:0]              adr ;                                    
   logic                      cyc;                                     
-  logic  [3:0]               sel;                                     
+  logic  [DATA_BYTES-1:0]    sel;                                     
   logic                      stb;                                     
   logic                      we;                                      
   logic                      ack;                                     

@@ -29,6 +29,7 @@ program test #(type virtual_master_t);
     int trErrors, trExpErrors;
     int itrNum;
     int chkResult ;
+    int data_bytes ;
     time t0,t1,t2,t3 ;
     //
     WSHB_m_env #(virtual_master_t) wshb_m;
@@ -37,6 +38,8 @@ program test #(type virtual_master_t);
     itrNum = 10000;
     // Create WSHB master
     wshb_m    = new(testbench_top.wshb_if_0);
+    // Get number of data bytes of the bus
+    data_bytes = wshb_m.blockSize ;
     // Start master and slave vips
     wshb_m.startEnv();
     //
@@ -46,36 +49,40 @@ program test #(type virtual_master_t);
     // Wait several clocks to be sure that DUT is ready
     repeat (10) @(posedge testbench_top.clk);
     // Master read/write in classic mode
+    $display("-Starting wishbone classic mode sequences ") ;
     t0 = $time ;
     repeat (itrNum) begin
       addr = pkt.genRndNum(0, 100000);
-      pkt.genRndPkt(pkt.genRndNum(1, 32), random_selection, dataIn, selIn);
-      $display("address == %h", addr);
-      $display("Length  == %d", dataIn.size());
+      pkt.genRndPkt(pkt.genRndNum(1, 32), random_selection, data_bytes, dataIn, selIn);
+      //$display("address == %h", addr);
+      //$display("Length  == %d", dataIn.size());
       wshb_m.writeData(addr,dataIn,selIn,without_burst_tags);
       wshb_m.busIdle(pkt.genRndNum(0, 2));
       wshb_m.readData(addr,dataOut,selIn,dataIn.size(),without_burst_tags);
       wshb_m.busIdle(pkt.genRndNum(0, 2));
-      chkResult = chk.CheckPkt(dataOut, dataIn,selIn);
+      chkResult = chk.CheckPkt(dataOut, dataIn,selIn,addr,data_bytes);
       if(chkResult < 0) $fatal ;  
     end
     t1 = $time ;
-    $display("-Total time for wishbone classic mode sequences              : %d",t1-t0) ;
+    $display("-End of  wishbone classic mode sequences ") ;
     // Master read/write in burst mode mode
+    $display("-Starting wishbone registered feedback mode sequences ") ;
     t2 = $time ;
     repeat (itrNum) begin
-      addr = pkt.genRndNum(0, 100000,4); // Force aligned words
-      pkt.genRndPkt(pkt.genRndNum(1, 32,4), random_burst_selection, dataIn, selIn); // Force multiple of words
-      $display("address == %h", addr);
-      $display("Length  == %d", dataIn.size());
+      addr = pkt.genRndNum(0, 100000,data_bytes); // Force aligned words
+      pkt.genRndPkt(pkt.genRndNum(1, 32, data_bytes), random_burst_selection, data_bytes, dataIn, selIn); // Force multiple of words
+      //$display("address == %h", addr);
+      //$display("Length  == %d", dataIn.size());
       wshb_m.writeData(addr,dataIn,selIn,with_burst_tags);
       wshb_m.busIdle(pkt.genRndNum(0, 2));
       wshb_m.readData(addr,dataOut,selIn,dataIn.size(),with_burst_tags);
       wshb_m.busIdle(pkt.genRndNum(0, 2));
-      chkResult = chk.CheckPkt(dataOut, dataIn,selIn);
+      chkResult = chk.CheckPkt(dataOut, dataIn,selIn,addr,data_bytes);
       if(chkResult < 0)  $fatal ;
     end
     t3 = $time ;
+    $display("-End of  wishbone classic mode sequences ") ;
+    $display("-Total time for wishbone classic mode sequences              : %d",t1-t0) ;
     $display("-Total time for wishbone registered feedback mode sequences  : %d",t3-t2) ;
     //
     repeat (5) @testbench_top.wshb_if_0.tbm.cbm;
