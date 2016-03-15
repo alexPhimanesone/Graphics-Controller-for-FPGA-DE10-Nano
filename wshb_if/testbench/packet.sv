@@ -174,10 +174,10 @@ class Packet;
     string sr ;
     bit sel;
 
-    if(length==0)begin
+    if(length==0) begin
       length = expPkt.size();
     end
-    //$write("%s: Packet size is %d bytes\n", str, pkt.size());
+    $write("%s: Packet size is %d bytes\n", str, expPkt.size());
     $write("%s\n", str);
     $write("address   Initial read data         Written data              Read data\n") ;
     
@@ -190,21 +190,21 @@ class Packet;
     for (int i = 0; i <= length/data_bytes; i++) begin
       $write("%h  ", naddr) ;
       naddr = naddr + data_bytes ;
-      for (int j=0; j <= data_bytes; j++) begin
+      for (int j=0; j < data_bytes; j++) begin
          $swrite(sr,"(%b,%h)",1'b1,initPkt[data_bytes*i+j]);
          results.push_front(sr) ;
       end
       for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
       $write("  "); 
 
-      for (int j=0; j <= data_bytes; j++) begin
+      for (int j=0; j < data_bytes; j++) begin
          $swrite(sr,"(%b,%h)",selpkt[data_bytes*i+j],expPkt[data_bytes*i+j]);
          results.push_front(sr) ;
       end
       for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
       $write("  "); 
       
-      for (int j=0; j <= data_bytes; j++) begin
+      for (int j=0; j < data_bytes; j++) begin
          if(errPkt[data_bytes*i+j]) 
             $swrite(sr,"\033[91m(%b,%h)\033[0m",selpkt[data_bytes*i+j],resPkt[data_bytes*i+j]);
          else

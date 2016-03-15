@@ -62,12 +62,12 @@ program test #(type virtual_master_t);
     // Verify that there is no address aliasing in the choosen space
     selIn  = { 1'b1, 1'b1 ,1'b1, 1'b1 } ;
     for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
-        dataIn = { addr[31:24], addr[23:16], addr[15:8], addr[7:0]} ; 
+        dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
         wshb_m.writeData(addr,dataIn,selIn,without_burst_tags);
         wshb_m.busIdle(0);
     end
     for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
-        dataIn = { addr[31:24], addr[23:16], addr[15:8], addr[7:0]} ; 
+        dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
         wshb_m.readData(addr,dataOut,selIn,dataIn.size(),without_burst_tags);
         wshb_m.busIdle(0);
         if(dataIn != dataOut) begin
