@@ -206,9 +206,9 @@ class Packet;
       
       for (int j=0; j <= data_bytes; j++) begin
          if(errPkt[data_bytes*i+j]) 
-            $swrite(sr,"\033[91m(%b,%h)\033[0m",1'b1,resPkt[data_bytes*i+j]);
+            $swrite(sr,"\033[91m(%b,%h)\033[0m",selpkt[data_bytes*i+j],resPkt[data_bytes*i+j]);
          else
-            $swrite(sr,"\033[92m(%b,%h)\033[0m",1'b1,resPkt[data_bytes*i+j]);
+            $swrite(sr,"\033[92m(%b,%h)\033[0m",selpkt[data_bytes*i+j],resPkt[data_bytes*i+j]);
          results.push_front(sr) ;
       end
       for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
@@ -338,7 +338,7 @@ class Checker;
       end else begin
         $write("#-----Check %0d",this.Checks);
         $write("   Failed. Current Check has %0d errors\n", dataError);
-        pkt.Print3Pkt("", initPkt, expPkt, resPkt, selPkt, errPkt, addr,data_bytes,1,1,length);
+        pkt.Print3Pkt("", initPkt, resPkt, expPkt, selPkt, errPkt, addr,data_bytes,1,1,length);
         CheckPkt = -1;
         this.ChecksFail++;
         this.AllChecksFail++;
