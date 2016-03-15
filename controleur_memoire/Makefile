@@ -40,10 +40,10 @@ info:
 all: simu_batch
 
 simu_batch: compile
-	cd $(WORK_DIR) ; vsim  -c -t 1ps -lib work $(TB_TOP) -do "run -all ; quit"
+	cd $(WORK_DIR) ; vsim  -batch -t 1ps -lib work $(TB_TOP) -do "run -all ; quit"
 
 simu_gui: compile
-	cd $(WORK_DIR); vsim  -t 1ps -lib work $(TB_TOP) 
+	cd $(WORK_DIR); vsim -t 1ps -lib work $(TB_TOP) 
 
 compile: $(DEP) 
 

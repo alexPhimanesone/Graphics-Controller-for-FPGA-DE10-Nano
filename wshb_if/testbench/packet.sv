@@ -43,12 +43,25 @@ class Packet;
                              rndNum inside {[rndNumMin:rndNumMax]};
                              rndNum%rndNumMult == 0;
                        }
+  // Constraints for aligned masks
+  rand bit[7:0] rndMask;
+  int dbytes ;
+  constraint word_align { 
+                          dbytes == 8 ->  rndMask[7:0] inside { 8'b00000000, 8'b00000001, 8'b00000010, 8'b00000100, 
+                                                                8'b00001000, 8'b00010000, 8'b00100000, 8'b01000000, 
+                                                                8'b10000000, 8'b00000011, 8'b00001100, 8'b00110000, 
+                                                                8'b11000000, 8'b00001111, 8'b11110000, 8'b11111111 } ;
+                          dbytes == 4 ->  rndMask[3:0] inside { 4'b0000, 4'b0001, 4'b0010, 4'b0100, 
+                                                                4'b1000, 4'b0011, 4'b1100, 4'b1111} ;
+                          dbytes == 2 -> rndMask[1:0] inside { 2'b00, 2'b01, 4'b10, 4'b11 }  ;
+                        }
   /////////////////////////////////////////////////////////////////////////////
   //************************* Class Methods *********************************//
   /////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////
   //- genRndPkt(): Generates random packet with the given length.
   // added random selection bit / or all selected bits  
+  // ...
   /////////////////////////////////////////////////////////////////////////////
   task genRndPkt(input int length, input selection_mode selMode, input int data_bytes, output packet pkt, output sel_packet selpkt);
     bit [7:0] selpattern ;
@@ -71,6 +84,45 @@ class Packet;
         selpkt.push_back(1'b1) ; 
     end
   endtask
+
+  /////////////////////////////////////////////////////////////////////////////
+  //- genRndPkt(): Generates random packet of given number of aligned words
+  // added random selection bit / or all selected bits  
+  // added round packet size to an integer number of word of size "data_bytes"
+  // added generate masks coherents with the word size (id correct byte addressing, or halfword addressing or word addressing)
+  // for a 16 bits bus allowed masks are (01,10,11)
+  // for a 32 bits bus (0001, 0010, 0101, 1111)
+  // ...
+  /////////////////////////////////////////////////////////////////////////////
+  task genAlignedRndPkt(input int nbWords, input selection_mode selMode, input int data_bytes, output packet pkt, output sel_packet selpkt);
+    automatic bit [7:0] selpattern = '1;
+    pkt = {};
+    selpkt = {};
+    this.dbytes = data_bytes ;
+    // in random_burst_selection mode, selection bits have a pattern of length data_bytes in order 
+    // to have a constant selection partern on with data_byte  words busses.
+    if(selMode == random_burst_selection) begin
+      assert (this.randomize() ) 
+      //assert (this.randomize() ) 
+      else $fatal(0, "Gen Randon Number: Randomize failed");
+      selpattern =  this.rndMask ;
+    end
+
+    for (int i = 0; i < nbWords; i++) begin
+      if(selMode == random_selection)
+       begin
+         assert (this.randomize() ) 
+         else $fatal(0, "Gen Randon Number: Randomize failed");
+         selpattern =  this.rndMask ;
+       end
+      for(int j=0 ; j < data_bytes; j++) begin
+        pkt.push_back($urandom_range(0, 255)); // random byte 
+        selpkt.push_back(selpattern[j]); // random selection bit
+      end
+    end
+  endtask
+
+
   /////////////////////////////////////////////////////////////////////////////
   //- genCntPkt(): Generates packet with the given length where the first byte
   // is 0 the second is 1 the third is 2 etc.
@@ -107,17 +159,76 @@ class Packet;
     int length = this.genRndNum(min, max, mult);
     this.genRndPkt(length, selMode, data_bytes, pkt, selpkt);
   endtask
+
+  /////////////////////////////////////////////////////////////////////////////
+  /*- Print3Pkt(): Prints given "str" string and then packet containt.*/
+  // added selection packet
+  // YM added padding for a clear display of word / bytes
+  // Warning only usable for aligned packets
+  /////////////////////////////////////////////////////////////////////////////
+  function void Print3Pkt(string str, packet initPkt, packet resPkt, packet expPkt, sel_packet selpkt, sel_packet errPkt, int addr, int data_bytes, bit addErrColor, bit useSel, int length=0);
+  int mask ;
+    int naddr ;
+    int pos ;
+    string results[$] ;
+    string sr ;
+    bit sel;
+
+    if(length==0)begin
+      length = expPkt.size();
+    end
+    //$write("%s: Packet size is %d bytes\n", str, pkt.size());
+    $write("%s\n", str);
+    $write("address   Initial read data         Written data              Read data\n") ;
+    
+    // Check alignement
+    mask = addr & ((1 << $clog2(data_bytes)) - 1) ;
+    naddr = addr ;
+    assert (mask == 0 ) else $fatal(0, "Packet is not word aligned");
+    
+
+    for (int i = 0; i <= length/data_bytes; i++) begin
+      $write("%h  ", naddr) ;
+      naddr = naddr + data_bytes ;
+      for (int j=0; j <= data_bytes; j++) begin
+         $swrite(sr,"(%b,%h)",1'b1,initPkt[data_bytes*i+j]);
+         results.push_front(sr) ;
+      end
+      for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
+      $write("  "); 
+
+      for (int j=0; j <= data_bytes; j++) begin
+         $swrite(sr,"(%b,%h)",selpkt[data_bytes*i+j],expPkt[data_bytes*i+j]);
+         results.push_front(sr) ;
+      end
+      for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
+      $write("  "); 
+      
+      for (int j=0; j <= data_bytes; j++) begin
+         if(errPkt[data_bytes*i+j]) 
+            $swrite(sr,"\033[91m(%b,%h)\033[0m",1'b1,resPkt[data_bytes*i+j]);
+         else
+            $swrite(sr,"\033[92m(%b,%h)\033[0m",1'b1,resPkt[data_bytes*i+j]);
+         results.push_front(sr) ;
+      end
+      for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
+      $write("\n");
+    end
+    $write("\n");
+  endfunction
+
   /////////////////////////////////////////////////////////////////////////////
   /*- PrintPkt(): Prints given "str" string and then packet containt.*/
   // added selection packet
   // YM added padding for a clear display of word / bytes
   /////////////////////////////////////////////////////////////////////////////
-  function void PrintPkt(string str, packet pkt, sel_packet selpkt, int addr, int data_bytes, int length=0);
+  function void PrintPkt(string str, packet pkt, sel_packet selpkt, sel_packet errPkt, int addr, int data_bytes, bit addErrColor, bit useSel, int length=0);
     int mask ;
     int naddr ;
     int pos ;
     string results[$] ;
     string sr ;
+    bit sel;
 
     if(length==0)begin
       length = pkt.size();
@@ -142,10 +253,17 @@ class Packet;
         $write("\n");
         naddr = naddr + data_bytes ;
       end
-      if(selpkt[i-1]) 
-         $swrite(sr,"(%b,%h)",selpkt[i-1],pkt[i-1]);
+      if(useSel) sel=selpkt[i-1] ; else sel=1 ;
+      if(addErrColor) begin
+        if(errPkt[i-1] == 1) begin
+          $swrite(sr,"\033[91m(%b,%h)\033[0m",sel,pkt[i-1]);
+        end
+        else
+          $swrite(sr,"\033[92m(%b,%h)\033[0m",sel,pkt[i-1]);
+      end 
       else
-         $swrite(sr,"(%b,xx)",selpkt[i-1]);
+        $swrite(sr,"(%b,%h)",sel,pkt[i-1]);
+
       results.push_front(sr) ;
     end
     pos = results.size() ;
@@ -185,26 +303,33 @@ class Checker;
   /*- CheckPkt(): Compares 2 given packets and returns '0' if they are equal.
   // Otherwise returns '-1'.*/
   // added selection packet to take into account real selected bytes in the packet
+  // added prvPkt : previous value read at the same address (in order to check selection efficiency)
   /////////////////////////////////////////////////////////////////////////////
-  function int CheckPkt(packet resPkt, expPkt, sel_packet selPkt, int addr, int data_bytes, int length = 0);
+  function int CheckPkt(packet initPkt, packet resPkt, expPkt, sel_packet selPkt, int addr, int data_bytes, int length = 0);
+    sel_packet errPkt ;
     int dataError = 0;
-    if(length == 0)begin
+    if(length == 0) begin
       length = expPkt.size();
     end
     this.Checks++;
     this.AllChecks++;
-    if((expPkt.size()==0) || (resPkt.size()==0))begin
+    if((expPkt.size()==0) || (initPkt.size()==0) || (initPkt.size() == 0)) begin
       $write("#-----Check %0d",this.Checks);
       $write("   Failed. Empty packet detected \n");
-      $write("           Expected packet length is %d \n", expPkt.size());
-      $write("           Result   packet length is %d \n", resPkt.size());
+      $write("           Initial  read  packet length is %d \n", expPkt.size());
+      $write("                    write packet length is %d \n", expPkt.size());
+      $write("           Result   read  packet length is %d \n", resPkt.size());
       CheckPkt = -1;
       this.ChecksFail++;
       this.AllChecksFail++;
     end else begin
       for (int i = 0; i < length; i++) begin
-        if ((resPkt[i] != expPkt[i]) && selPkt[i]) begin
+        errPkt[i] = 0 ;
+        if (((resPkt[i] != expPkt[i])  && selPkt[i]) ||   // Selected bytes of final read packet should be identical to written bytes
+            ((resPkt[i] != initPkt[i]) && !selPkt[i])     // Unselected bytes of final read packet should be identical to unwritten bytes
+         ) begin
           dataError++;
+          errPkt[i] = 1 ;
         end
       end
       if (dataError == 0) begin
@@ -213,8 +338,7 @@ class Checker;
       end else begin
         $write("#-----Check %0d",this.Checks);
         $write("   Failed. Current Check has %0d errors\n", dataError);
-        pkt.PrintPkt("Expected Packet", expPkt, selPkt,addr,data_bytes,length);
-        pkt.PrintPkt("Result Packet", resPkt, selPkt,addr,data_bytes,length);
+        pkt.Print3Pkt("", initPkt, expPkt, resPkt, selPkt, errPkt, addr,data_bytes,1,1,length);
         CheckPkt = -1;
         this.ChecksFail++;
         this.AllChecksFail++;
