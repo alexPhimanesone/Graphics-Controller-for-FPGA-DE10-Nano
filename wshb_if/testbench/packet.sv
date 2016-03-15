@@ -181,7 +181,8 @@ class Packet;
     end
     $fwrite(`STDERR,"%s: Packet size is %d bytes\n", str, expPkt.size());
     $fwrite(`STDERR,"%s\n", str);
-    $fwrite(`STDERR,"address   Initial read data         Written data              Read data\n") ;
+    if(data_bytes==4) $fwrite(`STDERR,"address   Initial read data         Written data              Read data\n") ;
+    if(data_bytes==2) $fwrite(`STDERR,"address   Initial read  Written data  Read data\n") ;
     
     // Check alignement
     mask = addr & ((1 << $clog2(data_bytes)) - 1) ;
