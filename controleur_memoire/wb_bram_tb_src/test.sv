@@ -15,7 +15,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 `timescale 1ns/1ns
+
+// For clean colored outputs under modelsim
+`define STDERR 32'h8000_0002 
 
 import PACKET::*;
 import WSHB_M::*;
@@ -56,9 +60,9 @@ program test #(type virtual_master_t);
     // Wait several clocks to be sure that DUT is ready
     repeat (10) @(posedge testbench_top.clk);
     
-    $write("\n\n-Verification de la plage d'adressage de la RAM: \n") ;
-    $write("  * boucle en ecriture sur les %5d  adresses RAM avec une donnees egale a l'adresse (sel = 1111).\n",(maxAddr+data_bytes)/data_bytes) ;
-    $write("  * suivie d'une boucle  en lecture sur les %5d  adresses RAM.\n",(maxAddr+data_bytes)/data_bytes) ;
+    $fwrite(`STDERR,"\n\n-Verification de la plage d'adressage de la RAM: \n") ;
+    $fwrite(`STDERR,"  * boucle en ecriture sur les %5d  adresses RAM avec une donnees egale a l'adresse (sel = 1111).\n",(maxAddr+data_bytes)/data_bytes) ;
+    $fwrite(`STDERR,"  * suivie d'une boucle  en lecture sur les %5d  adresses RAM.\n",(maxAddr+data_bytes)/data_bytes) ;
     // Verify that there is no address aliasing in the choosen space
     selIn  = { 1'b1, 1'b1 ,1'b1, 1'b1 } ;
     for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
@@ -71,20 +75,18 @@ program test #(type virtual_master_t);
         wshb_m.readData(addr,dataOut,selIn,dataIn.size(),without_burst_tags);
         wshb_m.busIdle(0);
         if(dataIn != dataOut) begin
-           $display("Erreur  (Eventuellement écrasement en memoire)") ;
-           $display("La donnee à l'adresse %h devrait  être %h, la valeur lue est %h%h%h%h",addr, addr , dataOut[0], dataOut[1], dataOut[2], dataOut[3]) ;
+           $fwrite(`STDERR,"Erreur  (Eventuellement écrasement en memoire)\n") ;
+           $fwrite(`STDERR,"La donnee à l'adresse %h devrait  être %h, la valeur lue est %h%h%h%h\n",addr, addr , dataOut[0], dataOut[1], dataOut[2], dataOut[3]) ;
            $fatal() ;
         end
     end
-    $write("-Fin de verification de la plage d'adressage de la RAM\n") ;
-    $fflush(0) ;
-    $fflush(1) ;
+    $fwrite(`STDERR,"-Fin de verification de la plage d'adressage de la RAM\n") ;
 
 
     // Master read/write in classic mode
-    $display("\n\n-Demarrage de %5d sequences transferts paquets de donnees de taille aleatoire en utilisant  le mode \"wishbone classic\"",itrNum) ;
-    $display("   * chaque paquet est transmit puis relu pour verification.") ;
-    $display("   * chaque mot d'un paquet est tire aleatoirement avec des bits de selection aleatoires") ;
+    $fwrite(`STDERR,"\n\n-Demarrage de %5d sequences transferts paquets de donnees de taille aleatoire en utilisant  le mode \"wishbone classic\"\n",itrNum) ;
+    $fwrite(`STDERR,"   * chaque paquet est transmit puis relu pour verification.\n") ;
+    $fwrite(`STDERR,"   * chaque mot d'un paquet est tire aleatoirement avec des bits de selection aleatoires\n") ;
     t0 = $time ;
     for(int itr=1;itr <=itrNum;itr++) begin
      
@@ -111,9 +113,9 @@ program test #(type virtual_master_t);
       if(chkResult < 0) $fatal ;  
     end
     t1 = $time ;
-    $display("-Fin de la sequence en mode \"wishbone classic\" ") ;
+    $fwrite(`STDERR,"-Fin de la sequence en mode \"wishbone classic\" \n") ;
     // Master read/write in burst mode mode
-    $display("\n\n-Demarrage de %5d sequences transferts paquets de donnees de taille aleatoire en utilisant  le mode \"registered feedback\"",itrNum) ;
+    $fwrite(`STDERR,"\n\n-Demarrage de %5d sequences transferts paquets de donnees de taille aleatoire en utilisant  le mode \"registered feedback\"\n",itrNum) ;
     t2 = $time ;
     for(int itr=1;itr <=itrNum;itr++) begin
       // Generate an aligned address (repeat 2 times the same address in order to test overwriteent values)
@@ -135,10 +137,10 @@ program test #(type virtual_master_t);
       if(chkResult < 0)  $fatal ;
     end
     t3 = $time ;
-    $display("-Fin de la sequence en mode \"registered feedback\" ") ;
+    $fwrite(`STDERR,"-Fin de la sequence en mode \"registered feedback\" \n") ;
 
-    $display("\n\n-Temps total pour les sequences en mode \wishbone classic\" : %d",t1-t0) ;
-    $display("-Temps total pour les sequences en mode \"registered feedback\"  : %d",t3-t2) ;
+    $fwrite(`STDERR,"\n\n-Temps total pour les sequences en mode \wishbone classic\" : %d\n",t1-t0) ;
+    $fwrite(`STDERR,"-Temps total pour les sequences en mode \"registered feedback\"  : %d\n",t3-t2) ;
     //
     repeat (5) @testbench_top.wshb_if_0.tbm.cbm;
     //

@@ -15,8 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// YM / TPT added 1 bit selection to packet bit8 packet
+// YM for clean colored output (out of modelsim transcript)
+`define STDERR 32'h8000_0002 
 
+// YM / TPT added 1 bit selection to packet bit8 packet
 package PACKET;
 
 typedef bit [7:0]  bit8;
@@ -177,9 +179,9 @@ class Packet;
     if(length==0) begin
       length = expPkt.size();
     end
-    $write("%s: Packet size is %d bytes\n", str, expPkt.size());
-    $write("%s\n", str);
-    $write("address   Initial read data         Written data              Read data\n") ;
+    $fwrite(`STDERR,"%s: Packet size is %d bytes\n", str, expPkt.size());
+    $fwrite(`STDERR,"%s\n", str);
+    $fwrite(`STDERR,"address   Initial read data         Written data              Read data\n") ;
     
     // Check alignement
     mask = addr & ((1 << $clog2(data_bytes)) - 1) ;
@@ -188,21 +190,21 @@ class Packet;
     
 
     for (int i = 0; i <= length/data_bytes; i++) begin
-      $write("%h  ", naddr) ;
+      $fwrite(`STDERR,"%h  ", naddr) ;
       naddr = naddr + data_bytes ;
       for (int j=0; j < data_bytes; j++) begin
          $swrite(sr,"(%b,%h)",1'b1,initPkt[data_bytes*i+j]);
          results.push_front(sr) ;
       end
-      for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
-      $write("  "); 
+      for(int j = 0; j < data_bytes;j++) $fwrite(`STDERR,results.pop_front()) ;
+      $fwrite(`STDERR,"  "); 
 
       for (int j=0; j < data_bytes; j++) begin
          $swrite(sr,"(%b,%h)",selpkt[data_bytes*i+j],expPkt[data_bytes*i+j]);
          results.push_front(sr) ;
       end
-      for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
-      $write("  "); 
+      for(int j = 0; j < data_bytes;j++) $fwrite(`STDERR,results.pop_front()) ;
+      $fwrite(`STDERR,"  "); 
       
       for (int j=0; j < data_bytes; j++) begin
          if(errPkt[data_bytes*i+j]) 
@@ -211,10 +213,10 @@ class Packet;
             $swrite(sr,"\033[92m(%b,%h)\033[0m",selpkt[data_bytes*i+j],resPkt[data_bytes*i+j]);
          results.push_front(sr) ;
       end
-      for(int j = 0; j < data_bytes;j++) $write(results.pop_front()) ;
-      $write("\n");
+      for(int j = 0; j < data_bytes;j++) $fwrite(`STDERR,results.pop_front()) ;
+      $fwrite(`STDERR,"\n");
     end
-    $write("\n");
+    $fwrite(`STDERR,"\n");
   endfunction
 
   /////////////////////////////////////////////////////////////////////////////
@@ -233,8 +235,8 @@ class Packet;
     if(length==0)begin
       length = pkt.size();
     end
-    //$write("%s: Packet size is %d bytes\n", str, pkt.size());
-    $write("%s\n", str);
+    //$fwrite(`STDERR,"%s: Packet size is %d bytes\n", str, pkt.size());
+    $fwrite(`STDERR,"%s\n", str);
     // Padding in order to obtain an aligned word
     mask = addr & ((1 << $clog2(data_bytes)) - 1) ;
     naddr = (addr >> $clog2(data_bytes)) << $clog2(data_bytes) ;
@@ -247,10 +249,10 @@ class Packet;
     for (int i = 1; i <= length; i++) begin
       if (results.size() == data_bytes)  
       begin
-        $write("address == %h ", naddr) ;
+        $fwrite(`STDERR,"address == %h ", naddr) ;
         for(int i = 0; i < data_bytes;i++) 
-          $write(results.pop_front()) ;
-        $write("\n");
+          $fwrite(`STDERR,results.pop_front()) ;
+        $fwrite(`STDERR,"\n");
         naddr = naddr + data_bytes ;
       end
       if(useSel) sel=selpkt[i-1] ; else sel=1 ;
@@ -268,16 +270,16 @@ class Packet;
     end
     pos = results.size() ;
     if(pos == data_bytes) 
-        $write("address == %h ", naddr) ;
+        $fwrite(`STDERR,"address == %h ", naddr) ;
     while (results.size() != 0) 
-            $write(results.pop_front()) ;
+            $fwrite(`STDERR,results.pop_front()) ;
     if(pos != 0) 
     while (pos != data_bytes) 
     begin
-         $write("(0,xx)");
+         $fwrite(`STDERR,"(0,xx)");
          pos++ ;
     end
-    $write("\n");
+    $fwrite(`STDERR,"\n");
   endfunction
   //
 endclass // Packet
@@ -314,11 +316,11 @@ class Checker;
     this.Checks++;
     this.AllChecks++;
     if((expPkt.size()==0) || (initPkt.size()==0) || (initPkt.size() == 0)) begin
-      $write("#-----Check %0d",this.Checks);
-      $write("   Failed. Empty packet detected \n");
-      $write("           Initial  read  packet length is %d \n", expPkt.size());
-      $write("                    write packet length is %d \n", expPkt.size());
-      $write("           Result   read  packet length is %d \n", resPkt.size());
+      $fwrite(`STDERR,"#-----Check %0d",this.Checks);
+      $fwrite(`STDERR,"   Failed. Empty packet detected \n");
+      $fwrite(`STDERR,"           Initial  read  packet length is %d \n", expPkt.size());
+      $fwrite(`STDERR,"                    write packet length is %d \n", expPkt.size());
+      $fwrite(`STDERR,"           Result   read  packet length is %d \n", resPkt.size());
       CheckPkt = -1;
       this.ChecksFail++;
       this.AllChecksFail++;
@@ -333,11 +335,11 @@ class Checker;
         end
       end
       if (dataError == 0) begin
-        //$write("   Passed!!! \n");
+        //$fwrite(`STDERR,"   Passed!!! \n");
         CheckPkt = 0;
       end else begin
-        $write("#-----Check %0d",this.Checks);
-        $write("   Failed. Current Check has %0d errors\n", dataError);
+        $fwrite(`STDERR,"#-----Check %0d",this.Checks);
+        $fwrite(`STDERR,"   Failed. Current Check has %0d errors\n", dataError);
         pkt.Print3Pkt("", initPkt, resPkt, expPkt, selPkt, errPkt, addr,data_bytes,1,1,length);
         CheckPkt = -1;
         this.ChecksFail++;
@@ -349,15 +351,15 @@ class Checker;
   /*- printStatus(): Print checks and failed checks information.*/
   /////////////////////////////////////////////////////////////////////////////
   function void printStatus();
-    $write("---Number of Checks        %0d \n", this.Checks);
-    $write("---Number of failed Checks %0d \n", this.ChecksFail);
+    $fwrite(`STDERR,"---Number of Checks        %0d \n", this.Checks);
+    $fwrite(`STDERR,"---Number of failed Checks %0d \n", this.ChecksFail);
   endfunction
   /////////////////////////////////////////////////////////////////////////////
   /*- printFullStatus(): Print checks and failed checks information.*/
   /////////////////////////////////////////////////////////////////////////////
   function void printFullStatus();
-    $write("---Number of Checks        %0d \n", this.AllChecks);
-    $write("---Number of failed Checks %0d \n", this.AllChecksFail);
+    $fwrite(`STDERR,"---Number of Checks        %0d \n", this.AllChecks);
+    $fwrite(`STDERR,"---Number of failed Checks %0d \n", this.AllChecksFail);
   endfunction
 endclass // Checker
 //
