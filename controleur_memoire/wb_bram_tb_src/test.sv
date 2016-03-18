@@ -60,37 +60,13 @@ program test #(type virtual_master_t);
     // Wait several clocks to be sure that DUT is ready
     repeat (10) @(posedge testbench_top.clk);
     
-    $fwrite(`STDERR,"\n\n-Vérification de la plage d'adressage de la RAM: \n") ;
-    $fwrite(`STDERR,"  * boucle en écriture sur les %5d  adresses RAM avec une donnée égale a l'adresse (sel = 1111).\n",(maxAddr+data_bytes)/data_bytes) ;
-    // Verify that there is no address aliasing in the choosen space
-    selIn  = { 1'b1, 1'b1 ,1'b1, 1'b1 } ;
-    for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
-        dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
-        wshb_m.writeData(addr,dataIn,selIn,without_burst_tags);
-        wshb_m.busIdle(0);
-    end
-    $fwrite(`STDERR,"  OK\n") ;
-    $fwrite(`STDERR,"  * relecture sur les %5d adresses RAM.\n",(maxAddr+data_bytes)/data_bytes) ;
-    for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
-        dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
-        wshb_m.readData(addr,dataOut,selIn,dataIn.size(),without_burst_tags);
-        wshb_m.busIdle(0);
-        if(dataIn != dataOut) begin
-           $fwrite(`STDERR,"Erreur  (Eventuellement écrasement en memoire)\n") ;
-           $fwrite(`STDERR,"La donnée à l'adresse %h devrait  être %h, la valeur lue est %h%h%h%h\n",addr, addr , dataOut[0], dataOut[1], dataOut[2], dataOut[3]) ;
-           $fatal() ;
-        end
-    end
-    $fwrite(`STDERR,"  OK\n") ;
-    $fwrite(`STDERR,"-Fin de vérification de la plage d'adressage de la RAM\n") ;
-
-
+    
     // Master read/write in classic mode
     $fwrite(`STDERR,"\n\n-Démarrage de %5d séquences de transferts de paquets de données de taille aléatoire en utilisant le mode \"wishbone classic\"\n",itrNum) ;
     $fwrite(`STDERR,"   * Pour chaque paquet : \n") ;
     $fwrite(`STDERR,"     - Le contenu courant de la zone mémoire située aux adresses du paquet est lue\n") ;
     $fwrite(`STDERR,"     - Le paquet est écrit en mémoire avec un contenu et des bits de sélection tirés aléatoirement\n" ) ;
-    $fwrite(`STDERR,"     - Le paquet est relu, puis le résultat est vérifié.\n") ;
+    $fwrite(`STDERR,"     - Le paquet est relu, puis le résultat est vérifié.\n\n\n") ;
     t0 = $time ;
     for(int itr=1;itr <=itrNum;itr++) begin
      
@@ -145,6 +121,32 @@ program test #(type virtual_master_t);
 
     $fwrite(`STDERR,"\n\n-Temps total pour les séquences en mode \wishbone classic\" : %d\n",t1-t0) ;
     $fwrite(`STDERR,"-Temps total pour les séquences en mode \"registered feedback\"  : %d\n",t3-t2) ;
+
+    $fwrite(`STDERR,"\n\n-Vérification de la plage d'adressage de la RAM: \n") ;
+    $fwrite(`STDERR,"  * boucle en écriture sur les %5d  adresses RAM avec une donnée égale a l'adresse (sel = 1111).\n",(maxAddr+data_bytes)/data_bytes) ;
+    // Verify that there is no address aliasing in the choosen space
+    selIn  = { 1'b1, 1'b1 ,1'b1, 1'b1 } ;
+    for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
+        dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
+        wshb_m.writeData(addr,dataIn,selIn,without_burst_tags);
+        wshb_m.busIdle(0);
+    end
+    $fwrite(`STDERR,"  OK\n") ;
+    $fwrite(`STDERR,"  * relecture sur les %5d adresses RAM.\n",(maxAddr+data_bytes)/data_bytes) ;
+    for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
+        dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
+        wshb_m.readData(addr,dataOut,selIn,dataIn.size(),without_burst_tags);
+        wshb_m.busIdle(0);
+        if(dataIn != dataOut) begin
+           $fwrite(`STDERR,"Erreur  (Eventuellement écrasement en memoire)\n") ;
+           $fwrite(`STDERR,"La donnée à l'adresse %h devrait  être %h, la valeur lue est %h%h%h%h\n",addr, addr , dataOut[0], dataOut[1], dataOut[2], dataOut[3]) ;
+           $fatal() ;
+        end
+    end
+    $fwrite(`STDERR,"  OK\n") ;
+    $fwrite(`STDERR,"-Fin de vérification de la plage d'adressage de la RAM\n") ;
+
+
     //
     repeat (5) @testbench_top.wshb_if_0.tbm.cbm;
     //
