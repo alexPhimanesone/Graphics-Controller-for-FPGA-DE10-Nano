@@ -62,7 +62,6 @@ program test #(type virtual_master_t);
     
     $fwrite(`STDERR,"\n\n-Vérification de la plage d'adressage de la RAM: \n") ;
     $fwrite(`STDERR,"  * boucle en écriture sur les %5d  adresses RAM avec une donnée égale a l'adresse (sel = 1111).\n",(maxAddr+data_bytes)/data_bytes) ;
-    $fwrite(`STDERR,"  * suivie d'une boucle en lecture sur les %5d adresses RAM.\n",(maxAddr+data_bytes)/data_bytes) ;
     // Verify that there is no address aliasing in the choosen space
     selIn  = { 1'b1, 1'b1 ,1'b1, 1'b1 } ;
     for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
@@ -70,6 +69,8 @@ program test #(type virtual_master_t);
         wshb_m.writeData(addr,dataIn,selIn,without_burst_tags);
         wshb_m.busIdle(0);
     end
+    $fwrite(`STDERR,"  OK\n") ;
+    $fwrite(`STDERR,"  * relecture sur les %5d adresses RAM.\n",(maxAddr+data_bytes)/data_bytes) ;
     for(addr=0;addr <= maxAddr  ; addr=addr+data_bytes) begin
         dataIn = { addr[7:0], addr[15:8], addr[23:16], addr[31:24]} ; 
         wshb_m.readData(addr,dataOut,selIn,dataIn.size(),without_burst_tags);
@@ -80,13 +81,16 @@ program test #(type virtual_master_t);
            $fatal() ;
         end
     end
+    $fwrite(`STDERR,"  OK\n") ;
     $fwrite(`STDERR,"-Fin de vérification de la plage d'adressage de la RAM\n") ;
 
 
     // Master read/write in classic mode
     $fwrite(`STDERR,"\n\n-Démarrage de %5d séquences de transferts de paquets de données de taille aléatoire en utilisant le mode \"wishbone classic\"\n",itrNum) ;
-    $fwrite(`STDERR,"   * chaque paquet est transmit puis relu pour vérification.\n") ;
-    $fwrite(`STDERR,"   * chaque mot d'un paquet est tire aléatoirement avec des bits de sélection aléatoires\n") ;
+    $fwrite(`STDERR,"   * Pour chaque paquet : \n") ;
+    $fwrite(`STDERR,"     - Le contenu courant de la zone mémoire située aux adresses du paquet est lue\n") ;
+    $fwrite(`STDERR,"     - Le paquet est écrit en mémoire avec un contenu et des bits de sélection tirés aléatoirement\n" ) ;
+    $fwrite(`STDERR,"     - Le paquet est relu, puis le résultat est vérifié.\n") ;
     t0 = $time ;
     for(int itr=1;itr <=itrNum;itr++) begin
      
