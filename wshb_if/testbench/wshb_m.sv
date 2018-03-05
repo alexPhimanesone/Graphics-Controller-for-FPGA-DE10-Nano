@@ -125,14 +125,14 @@ class WSHB_m_busBFM #(type virtual_wshb_master_type);
   /////////////////////////////////////////////////////////////////////////////
   local task run_loop();
     // Init
-    this.ifc.tbm.cbm.dat_ms    <= 'd0;
-    this.ifc.tbm.cbm.adr     <= 'd0;
-    this.ifc.tbm.cbm.cyc     <= 1'b0;
-    this.ifc.tbm.cbm.sel     <= 'd0;
-    this.ifc.tbm.cbm.stb     <= 1'b0;
-    this.ifc.tbm.cbm.we      <= 1'b0;
-    this.ifc.tbm.cbm.cti     <= 3'b000 ;
-    this.ifc.tbm.cbm.bte     <= 2'b00 ;
+    this.ifc.cbm.dat_ms    <= 'd0;
+    this.ifc.cbm.adr     <= 'd0;
+    this.ifc.cbm.cyc     <= 1'b0;
+    this.ifc.cbm.sel     <= 'd0;
+    this.ifc.cbm.stb     <= 1'b0;
+    this.ifc.cbm.we      <= 1'b0;
+    this.ifc.cbm.cti     <= 3'b000 ;
+    this.ifc.cbm.bte     <= 2'b00 ;
     this.burstCnt          = 0;
     // Start main loop
     forever begin
@@ -141,7 +141,7 @@ class WSHB_m_busBFM #(type virtual_wshb_master_type);
       this.ifc.clockAlign();
       // Transaction decoder
       if(this.tr.TrType == WSHB_m_busTrans::IDLE) begin
-        repeat(this.tr.idleCycles) @this.ifc.tbm.cbm;
+        repeat(this.tr.idleCycles) @this.ifc.cbm;
       end else if(this.tr.TrType == WSHB_m_busTrans::WAIT)begin
         this.trOutBox.put(this.tr);
       end else if(this.tr.TrType == WSHB_m_busTrans::CFG_DELAY) begin
@@ -175,27 +175,27 @@ class WSHB_m_busBFM #(type virtual_wshb_master_type);
     string tempStr;
     int retryCnt = 0;
     int ackCnt   = 0;
-    this.ifc.tbm.cbm.cyc      <= 1'b1;
-    this.ifc.tbm.cbm.stb      <= 1'b1;
-    this.ifc.tbm.cbm.adr      <= this.tr.address;
-    this.ifc.tbm.cbm.sel      <= this.tr.sel;
-    this.ifc.tbm.cbm.dat_ms   <= this.tr.unpack2pack(this.tr.dataBlock);
-    this.ifc.tbm.cbm.cti      <= this.tr.cti ;
+    this.ifc.cbm.cyc      <= 1'b1;
+    this.ifc.cbm.stb      <= 1'b1;
+    this.ifc.cbm.adr      <= this.tr.address;
+    this.ifc.cbm.sel      <= this.tr.sel;
+    this.ifc.cbm.dat_ms   <= this.tr.unpack2pack(this.tr.dataBlock);
+    this.ifc.cbm.cti      <= this.tr.cti ;
     if(this.tr.TrType == WSHB_m_busTrans::WRITE) begin
-      this.ifc.tbm.cbm.we       <= 1'b1;
+      this.ifc.cbm.we       <= 1'b1;
     end else begin
-      this.ifc.tbm.cbm.we      <= 1'b0;
+      this.ifc.cbm.we      <= 1'b0;
     end
     // Wait for slave response.
     do begin
       // Wait for slave acknowledge.
       do begin
-        @this.ifc.tbm.cbm;
+        @this.ifc.cbm;
         ackCnt++;
-      end while(((this.ifc.tbm.cbm.ack !== 1'b1)&&(this.ifc.tbm.cbm.err !== 1'b1)&&
-                (this.ifc.tbm.cbm.rty !== 1'b1))&&(ackCnt != this.ackTimeOut));
+      end while(((this.ifc.cbm.ack !== 1'b1)&&(this.ifc.cbm.err !== 1'b1)&&
+                (this.ifc.cbm.rty !== 1'b1))&&(ackCnt != this.ackTimeOut));
       // Check error signal.
-      if(this.ifc.tbm.cbm.err == 1'b1) begin
+      if(this.ifc.cbm.err == 1'b1) begin
         trErr = new();
         $display("Transaction Error Detected at sim time %0d", $time());
         tempStr.itoa($time);
@@ -206,9 +206,9 @@ class WSHB_m_busBFM #(type virtual_wshb_master_type);
         break;
       end
       // Check acknowledge timeout
-      //if((this.ifc.tbm.cbm.ack == 1'b0) && (this.ifc.tbm.cbm.rty == 1'b0)) begin 
+      //if((this.ifc.cbm.ack == 1'b0) && (this.ifc.cbm.rty == 1'b0)) begin 
       // cor YM for correct X handling
-      if((this.ifc.tbm.cbm.ack !== 1'b1) && (this.ifc.tbm.cbm.rty !== 1'b1)) begin
+      if((this.ifc.cbm.ack !== 1'b1) && (this.ifc.cbm.rty !== 1'b1)) begin
         trErr = new();
         $display("Transaction TimeOut Detected at sim time %0d", $time());
         tempStr.itoa($time);
@@ -219,9 +219,9 @@ class WSHB_m_busBFM #(type virtual_wshb_master_type);
         break;
       end
       retryCnt++;
-    end while((this.ifc.tbm.cbm.rty == 1'b1)&&((retryCnt-1) != this.maxRetry));
+    end while((this.ifc.cbm.rty == 1'b1)&&((retryCnt-1) != this.maxRetry));
     // Check retry signal
-    if(this.ifc.tbm.cbm.rty == 1'b1) begin
+    if(this.ifc.cbm.rty == 1'b1) begin
       trErr = new();
       $display("Unexpected Transaction Retry Detected at sim time %0d", $time());
       tempStr.itoa($time);
@@ -231,17 +231,17 @@ class WSHB_m_busBFM #(type virtual_wshb_master_type);
       trErr = null;
     end
     // Get data.
-    this.tr.dataBlock         = this.tr.pack2unpack(this.ifc.tbm.cbm.dat_sm);
+    this.tr.dataBlock         = this.tr.pack2unpack(this.ifc.cbm.dat_sm);
     if(this.tr.lastBlock == 1) begin
-      this.ifc.tbm.cbm.cyc       <= 1'b0;
+      this.ifc.cbm.cyc       <= 1'b0;
     end
-    this.ifc.tbm.cbm.stb         <= 1'b0;
+    this.ifc.cbm.stb         <= 1'b0;
     // Random timing control.
     if((this.burstDelayEn != 0) && (this.maxBurstLen != 0))begin
       this.burstCnt            = this.burstCnt + 1;
     end
     if((this.burstCnt == this.maxBurstLen) && (this.burstDelayEn != 0)) begin
-      if(this.maxBurstLen != 0) repeat(waitCycles) @this.ifc.tbm.cbm;
+      if(this.maxBurstLen != 0) repeat(waitCycles) @this.ifc.cbm;
       assert (this.randomize())
       else $fatal(0, "Wishbone Master: Randomize failed");
       this.burstCnt           = 0;
@@ -273,7 +273,7 @@ class WSHB_m_env #(type virtual_wshb_master_type) extends WSHB_m_busBFM #(virtua
     super.trInBox          = new();
     super.trOutBox         = new();
     super.statusBox        = new();
-    super.blockSize        = $size(ifc.tbm.cbm.dat_sm) >> 3 ;
+    super.blockSize        = $size(ifc.cbm.dat_sm) >> 3 ;
   endfunction
   /////////////////////////////////////////////////////////////////////////////
   /*- startEnv(): Start BFM. Only after this task transactions will appear on
@@ -434,7 +434,7 @@ task pollData(input bit32 address, bit8 pollData[$], bit32 pollTimeOut = 1000000
 
     fork: poll
       begin
-        repeat(pollTimeOut) @super.ifc.tbm.cbm;
+        repeat(pollTimeOut) @super.ifc.cbm;
         this.tr = new();
         $display("Poll Time Out Detected at sim time %0d", $time());
         tempStr.itoa($time);

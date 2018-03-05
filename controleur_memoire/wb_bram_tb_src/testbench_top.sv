@@ -35,12 +35,12 @@ module testbench_top;
 
   // Wishbone 32 bits interface with a master testbench
   wshb_if
-    #(.DATA_BYTES(4),.TB_MASTER(1))  
+    #(.DATA_BYTES(4))
     wshb_if_0(
              .clk(clk),
              .rst(rst)
              );
-  
+
   // Device under test
   wb_bram u_ctrl
   (
@@ -50,7 +50,7 @@ module testbench_top;
 
   // Testbench
   // Virtual tb_master modport  for the testbench
-  typedef virtual wshb_if #(.DATA_BYTES(4),.TB_MASTER(1)).tb_master  virtual_master_t ;
+  typedef virtual wshb_if #(.DATA_BYTES(4)).tb_master  virtual_master_t ;
 
   test #(virtual_master_t) u_test();
 

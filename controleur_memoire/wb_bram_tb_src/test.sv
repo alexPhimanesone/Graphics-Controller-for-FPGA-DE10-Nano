@@ -148,7 +148,7 @@ program test #(type virtual_master_t);
 
 
     //
-    repeat (5) @testbench_top.wshb_if_0.tbm.cbm;
+    repeat (5) @testbench_top.wshb_if_0.cbm;
     //
         //trErrors = wshb_m.printStatus();
     //$display("-----------------------Test Done------------------------");
