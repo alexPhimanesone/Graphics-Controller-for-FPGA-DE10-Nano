@@ -2,6 +2,7 @@
 
 # Chargement des  paquets Quartus II
 load_package project
+load_package incremental_compilation
 
 # Le nom du module top sera celui du projet
 set PROJECT_NAME  $env(PROJECT)

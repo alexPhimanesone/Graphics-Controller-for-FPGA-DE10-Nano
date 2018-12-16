@@ -1,4 +1,5 @@
 `default_nettype none
+
 module Top (
     // Les signaux externes de la partie FPGA
 	input  wire         FPGA_CLK1_50,
@@ -12,8 +13,8 @@ module Top (
 //====================================
 //  Déclarations des signaux internes
 //====================================
+  wire        sys_rst;   // Le signal de reset du système
   wire        sys_clk;   // L'horloge système a 100Mhz
-  wire        sys_rst;   // Le signal de reset
   wire        pixel_clk; // L'horloge de la video 32 Mhz
 
 //=======================================================
@@ -23,8 +24,8 @@ module Top (
 sys_pll  sys_pll_inst(
 		   .refclk(FPGA_CLK1_50),   // refclk.clk
 		   .rst(1'b0),              // pas de reset
-		   .outclk_0(pixel_clk),    // sortie a 32 Mhz
-		   .outclk_1(sys_clk)       // sortie a 100 Mhz
+		   .outclk_0(pixel_clk),    // horloge pixels a 32 Mhz
+		   .outclk_1(sys_clk)       // horloge systeme a 100MHz
 );
 
 //=============================
@@ -48,6 +49,7 @@ hw_support hw_support_inst (
 //=============================
 // On neutralise l'interface
 // du flux video pour l'instant
+// A SUPPRIMER PLUS TARD
 //=============================
 assign wshb_if_stream.ack = 1'b1;
 assign wshb_if_stream.dat_sm = '0 ;
@@ -57,6 +59,7 @@ assign wshb_if_stream.rty =  1'b0 ;
 //=============================
 // On neutralise l'interface SDRAM
 // pour l'instant
+// A SUPPRIMER PLUS TARD
 //=============================
 assign wshb_if_sdram.stb  = 1'b0;
 assign wshb_if_sdram.cyc  = 1'b0;
@@ -67,40 +70,10 @@ assign wshb_if_sdram.sel = '0 ;
 assign wshb_if_sdram.cti = '0 ;
 assign wshb_if_sdram.bte = '0 ;
 
-
 //--------------------------
 //------- Code Eleves ------
 //--------------------------
-// 100 Mhz / 1 Hz * 50 % duty cycle
-`ifdef SIMULATION
-    localparam CNT_1HZ   = 50;
-`else
-    localparam CNT_1HZ   = 50_000_000;
-`endif
 
-logic [$clog2(CNT_1HZ)-1:0] count_2;
-logic state_2;
-
-// LEDR1 blink
-// Clock 100 Mhz
-always @(posedge sys_clk or posedge sys_rst)
-   if(sys_rst)
-   begin
-       count_2 <= '0;
-       state_2 <= 1'b0;
-   end
-   else if (count_2 == CNT_1HZ-1)
-   begin
-       state_2 <= ~state_2;
-       count_2 <= '0;
-   end
-   else
-       count_2 <= count_2 + 1'b1;
-
-assign LED[1] = state_2;
-assign LED[0] = sys_rst;
-
-//------ End User Code
 
 
 endmodule

@@ -46,7 +46,8 @@ set_global_assignment -name LL_STATE LOCKED -section_id hw_support_par
 set_global_assignment -name LL_AUTO_SIZE OFF -section_id hw_support_par
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY hwsup_ee4c1 -to "hw_support:hw_support_inst" -section_id hw_support_par
-
+set_partition -partition "hw_support_par" -netlist_type POST_FIT
+set_partition -partition "Top" -netlist_type POST_FIT
 ### Assignments 
 
 #============================================================

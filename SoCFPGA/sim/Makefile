@@ -18,12 +18,13 @@ VSIM_OPT := -lib work -L altera_lnsim_ver
 VLOG_DEFINE := +define+IMAGE_FILE=\"$(PROJECT_DIR)/tb_src/image.hex\"
 
 # Sources
-VPATH := $(TOPDIR)/ips/interfaces:$(TOPDIR)/SoCFPGA/tb_src:$(TOPDIR)/SoCFPGA/src:$(TOPDIR)/ips/hws:$(TOPDIR)/ips/sys_pll:$(TOPDIR)/ips/sys_pll/sys_pll
+VPATH := $(TOPDIR)/ips/interfaces:$(TOPDIR)/SoCFPGA/tb_src:$(TOPDIR)/SoCFPGA/src:$(TOPDIR)/ips/hws:$(TOPDIR)/ips/sys_pll:$(TOPDIR)/ips/sys_pll/sys_pll:$(TOPDIR)/ips/fifos
 
 SRC       = $(wildcard $(TOPDIR)/ips/interfaces/*.sv)
 SRC      += $(wildcard $(TOPDIR)/ips/sys_pll/*.v)
 SRC      += $(wildcard $(TOPDIR)/ips/sys_pll/*/*.v)
 SRC      += $(TOPDIR)/ips/hws/hw_support.sv
+SRC      += $(wildcard $(TOPDIR)/ips/fifos/*.sv)
 SRC      += $(wildcard $(TOPDIR)/SoCFPGA/tb_src/*.sv)
 SRC      += $(wildcard $(TOPDIR)/SoCFPGA/src/*.sv)
 

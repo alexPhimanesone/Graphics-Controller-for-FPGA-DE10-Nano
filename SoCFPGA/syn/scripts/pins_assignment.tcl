@@ -30,58 +30,8 @@ set_global_assignment -name RESERVE_ASDO_AFTER_CONFIGURATION "AS OUTPUT DRIVING 
 #     set_location_assignment PIN_M20 -to address[10] -comment "Address pin to Second FPGA"
 #
 
-#============================================================
-# CLOCK
-#============================================================
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK1_50
-#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK2_50
-#set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to FPGA_CLK3_50
-set_location_assignment PIN_V11 -to FPGA_CLK1_50
-#set_location_assignment PIN_Y13 -to FPGA_CLK2_50
-#set_location_assignment PIN_E11 -to FPGA_CLK3_50
-
-
-#============================================================
-# KEY
-#============================================================
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to KEY[1]
-set_location_assignment PIN_AH17 -to KEY[0]
-set_location_assignment PIN_AH16 -to KEY[1]
-
-#============================================================
-# LED
-#============================================================
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[1]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[2]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[3]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[4]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[5]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[6]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LED[7]
-set_location_assignment PIN_W15 -to LED[0]
-set_location_assignment PIN_AA24 -to LED[1]
-set_location_assignment PIN_V16 -to LED[2]
-set_location_assignment PIN_V15 -to LED[3]
-set_location_assignment PIN_AF26 -to LED[4]
-set_location_assignment PIN_AE26 -to LED[5]
-set_location_assignment PIN_Y16 -to LED[6]
-set_location_assignment PIN_AA23 -to LED[7]
-
-#============================================================
-# SW
-#============================================================
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[1]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[2]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to SW[3]
-set_location_assignment PIN_Y24 -to SW[0]
-set_location_assignment PIN_W24 -to SW[1]
-set_location_assignment PIN_W21 -to SW[2]
-set_location_assignment PIN_W20 -to SW[3]
-
-# les E/S du contrôleur VGA
 #source ./scripts/pins_assignment_vga.tcl
 
-
+###################################################
+### PLACEZ ICI VOS DEFINITIONS
+##################################################

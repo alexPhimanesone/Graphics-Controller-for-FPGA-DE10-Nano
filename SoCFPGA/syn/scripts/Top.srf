@@ -571,3 +571,13 @@
 { "" "" "" "Node: hws_ifm.HPS_USB_CLKOUT was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Design Software" 0 -1 0 ""}
 { "" "" "" "Node: hws_ifm.HPS_I2C0_SCLK was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Design Software" 0 -1 0 ""}
 { "" "" "" "Node: hws_ifm.HPS_I2C1_SCLK was determined to be a clock but was found without an associated clock assignment." {  } {  } 0 332060 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Entity \"avl_if\" contains only dangling pins" {  } {  } 0 12158 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Entity \"avlst_if\" contains only dangling pins" {  } {  } 0 12158 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Verilog HDL or VHDL warning at alt_vipvfr131_common_general_fifo.vhd(230): object \"ram_fifo_empty\" assigned a value but never read" {  } {  } 0 10036 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Entity \"altera_mem_if_hhp_qseq_synth_top\" contains only dangling pins" {  } {  } 0 12158 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Inferred RAM node \"hw_support:hw_support_inst\|fpga_bridge:fpga_bridge_inst\|wshb2avl:wshb2avl_i\|sync_fifo:read_fifo_i\|mem_rtl_0\" from synchronous design logic.  Pass-through logic has been added to match the read-during-write behavior of the original design." {  } {  } 0 276020 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Inferred RAM node \"hw_support:hw_support_inst\|fpga_bridge:fpga_bridge_inst\|wshb2avl:wshb2avl_i\|sync_fifo:wr_fifo_i\|mem_rtl_0\" from synchronous design logic.  Pass-through logic has been added to match the read-during-write behavior of the original design." {  } {  } 0 276020 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Inferred RAM node \"hw_support:hw_support_inst\|fpga_bridge:fpga_bridge_inst\|avlst2wshb:avlst2wshb_inst\|sync_fifo:sync_fifo_i\|mem_rtl_0\" from synchronous design logic.  Pass-through logic has been added to match the read-during-write behavior of the original design." {  } {  } 0 276020 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "Synthesized away the following node(s):" {  } {  } 0 14284 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "TRI or OPNDRN buffers permanently enabled" {  } {  } 0 13009 "" 0 0 "Design Software" 0 -1 0 ""}
+{ "" "" "" "The configuration of the Hard Processor Subsystem (HPS) within this design has changed.\nThe Preloader software that initializes the HPS requires an update.\nUsing hps_isw_handoff/soc_system_hps_0/, run the Preloader Support Package Generator to update your Preloader software" {  } {  } 0 11713 "" 0 0 "Design Software" 0 -1 0 ""}

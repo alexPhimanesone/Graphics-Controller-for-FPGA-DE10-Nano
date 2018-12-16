@@ -7,11 +7,11 @@ load_package project
 project_open $project
 
 
-# Run initial compilation
+# Run recompilation
 
-execute_module -tool map -args "--incremental_compilation=full_incremental_compilation"
-execute_module -tool cdb -args "--merge"
-execute_module -tool fit 
+execute_module -tool map -args "--incremental_compilation=full_incremental_compilation --recompile=on"
+execute_module -tool cdb -args "--merge --recompile=on"
+execute_module -tool fit  -args "--recompile=on"
 execute_module -tool asm
 execute_module -tool sta -args "--multicorner=off"
 

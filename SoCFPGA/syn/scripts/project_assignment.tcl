@@ -15,8 +15,8 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING OFF
 # set_global_assignment -name SYNTHESIS_EFFORT FAST
 
 # Reduce compile time but degrade design performance 
-set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
-set_global_assignment -name FITTER_EFFORT FAST_FIT
+#set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT FAST
+#set_global_assignment -name FITTER_EFFORT FAST_FIT
 
 #set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION NEVER
 #set_global_assignment -name OPTIMIZE_TIMING OFF
@@ -34,8 +34,8 @@ set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS OFF
 # registers in diffrent hierarchies could be merged if their inputs are the same
 set_global_assignment -name DISABLE_REGISTER_MERGING_ACROSS_HIERARCHIES OFF
 # remove registers that are identical to other regiters in the design
-set_global_assignment -name ALLOW_REGISTER_MERGING OFF
-set_global_assignment -name ALLOW_REGISTER_DUPLICATION OFF
+#set_global_assignment -name ALLOW_REGISTER_MERGING OFF
+#set_global_assignment -name ALLOW_REGISTER_DUPLICATION OFF
 
 set_global_assignment -name FITTER_AGGRESSIVE_ROUTABILITY_OPTIMIZATION NEVER
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
