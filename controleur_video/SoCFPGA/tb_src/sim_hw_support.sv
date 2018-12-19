@@ -30,7 +30,7 @@ always @(posedge wshb_ifs.clk or negedge KEY[0])
 tpg_video tpg_video_inst(.wshb_ifm(wshb_ifm)) ;
 
 // Modèle du controleur de RAM
-wb_ram_ctl #( .DEPTH(1024*1024), .WIDTH(32), .LATENCY(12)) wb_ram_ctl_inst ( .wshb_ifs(wshb_ifs));
+wb_ram_ctl #( .DEPTH(1024*1024), .WIDTH(32), .LATENCY(12), .INIT_FILE(`IMAGE_FILE)) wb_ram_ctl_inst ( .wshb_ifs(wshb_ifs));
 
 
 endmodule

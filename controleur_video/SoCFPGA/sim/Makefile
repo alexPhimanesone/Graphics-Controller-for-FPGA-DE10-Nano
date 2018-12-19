@@ -12,10 +12,11 @@ TB_TOP = tb_Top
 
 VLOG     := vlog
 VLOG_OPT ?= +acc -l comp.log -timescale "1ns/1ps"  
+VLOG_OPT += +define+IMAGE_FILE=\"$(TOPDIR)/SoCFPGA/tb_src/image.hex\"
+VLOG_OPT += +define+SIMULATION
 
 VSIM     := vsim
 VSIM_OPT := -lib work -L altera_lnsim_ver
-VLOG_DEFINE := +define+IMAGE_FILE=\"$(PROJECT_DIR)/tb_src/image.hex\"
 
 # Sources
 VPATH := $(TOPDIR)/ips/interfaces:$(TOPDIR)/SoCFPGA/tb_src:$(TOPDIR)/SoCFPGA/src:$(TOPDIR)/ips/hws:$(TOPDIR)/ips/sys_pll:$(TOPDIR)/ips/sys_pll/sys_pll:$(TOPDIR)/ips/fifos
@@ -51,11 +52,11 @@ simu_gui: compile
 compile: $(DEP)
 
 $(WORKDIR)/.%.compiled: %.sv | $(WORKDIR)
-	cd $(WORKDIR) ; vlog  +acc +define+SIMULATION $< 
+	cd $(WORKDIR) ; $(VLOG)  $(VLOG_OPT) $< 
 	touch $@
 
 $(WORKDIR)/.%.compiled: %.v | $(WORKDIR)
-	cd $(WORKDIR) ; vlog  +acc +define+SIMULATION $< 
+	cd $(WORKDIR) ; $(VLOG) $(VLOG_OPT) $< 
 	touch $@
 
 $(WORKDIR):
