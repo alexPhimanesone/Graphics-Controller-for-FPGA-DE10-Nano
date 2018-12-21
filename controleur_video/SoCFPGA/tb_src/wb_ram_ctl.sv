@@ -1,6 +1,6 @@
 
-// October 2018 
-// @brief : wishbone ram controller using latency and burst mode for read operations 
+// October 2018
+// @brief : wishbone ram controller using latency and burst mode for read operations
 `default_nettype none
  module wb_ram_ctl
  #(
@@ -78,29 +78,25 @@ begin
           end
         else if(valid_write_req)
         begin
+            s_addr       = wshb_ifs.adr[ADDR_HIGH-1:ADDR_LOW];
             wshb_ifs.ack = 1'b1;
         end
-            
+
         READ:
-        if (valid_read_req)
+        if ((valid_read_req) && (wshb_ifs.adr[ADDR_HIGH-1:ADDR_LOW] == r_addr))
         begin
-            if(wshb_ifs.adr[ADDR_HIGH-1:ADDR_LOW] == r_addr)
-            begin
-                wshb_ifs.ack = 1'b1;
-                
-                if (r_burst_cnt == 3'b111)
-                    s_state = IDLE;
-                else
-                begin
-                    s_addr       = r_addr + 1'b1;
-                    s_burst_cnt  = r_burst_cnt + 1'b1; 
-                end
-            end
+            wshb_ifs.ack = 1'b1;
+
+            if (r_burst_cnt == 3'b111)
+                s_state = IDLE;
             else
             begin
-                s_state = IDLE;
+                s_addr       = r_addr + 1'b1;
+                s_burst_cnt  = r_burst_cnt + 1'b1;
             end
         end
+        else
+            s_state = IDLE;
     endcase
 end
 // ack_o
@@ -114,10 +110,10 @@ always_ff @(posedge wshb_ifs.clk)
   end
   else
   begin
-    r_state     <= s_state;    
-    r_lat       <= s_lat;      
+    r_state     <= s_state;
+    r_lat       <= s_lat;
     r_burst_cnt <= s_burst_cnt;
-    r_addr      <= s_addr;     
+    r_addr      <= s_addr;
   end
 
 endmodule
