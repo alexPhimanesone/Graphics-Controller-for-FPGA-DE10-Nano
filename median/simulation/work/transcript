@@ -1,0 +1,22 @@
+# //  Questa Sim-64
+# //  Version 2020.3 linux_x86_64 Jul 12 2020
+# //
+# //  Copyright 1991-2020 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  QuestaSim and its associated documentation contain trade
+# //  secrets and commercial or financial information that are the property of
+# //  Mentor Graphics Corporation and are privileged, confidential,
+# //  and exempt from disclosure under the Freedom of Information Act,
+# //  5 U.S.C. Section 552. Furthermore, this information
+# //  is prohibited from disclosure under the Trade Secrets Act,
+# //  18 U.S.C. Section 1905.
+# //
+# vsim MCE_tb 
+# Start time: 22:29:25 on Dec 11,2022
+# ** Error (suppressible): (vsim-19) Failed to access library 'work' at "work".
+# No such file or directory. (errno = ENOENT)
+# Error loading design
+# End time: 22:29:26 on Dec 11,2022, Elapsed time: 0:00:01
+# Errors: 1, Warnings: 0
+vlog

@@ -1,0 +1,83 @@
+m255
+K4
+z2
+!s11f vlog 2020.3 2020.07, Jul 12 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/cal/exterieurs/aphimane-21/SE/SE204/median/simulation
+T_opt
+!s110 1670255561
+V9dUGeg`lNogVe6W>64m@73
+Z1 04 6 4 work MCE_tb fast 0
+=1-000ae431a4f1-638e13c8-f1669-4beb2
+Z2 o-quiet -auto_acc_if_foreign -work work
+Z3 tCvgOpt 0 Stats "none"
+n@_opt
+Z4 OL;O;2020.3;71
+R0
+T_opt1
+!s110 1670793282
+VR1PU]QgekG4T5H`2zg<g63
+R1
+=1-000ae431a4f1-63964841-3d4e6-1cfda
+R2
+R3
+n@_opt1
+R4
+R0
+vMCE
+Z5 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+!s110 1670794312
+!i10b 1
+!s100 j9Kl]giGa0oHkld<[06=E0
+Z6 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IAh`zl0LScj_=:n>9`CLI53
+S1
+Z7 d/cal/exterieurs/aphimane-21/SE/SE204/DEPOT_SE204/median/simulation
+w1670794302
+8../src/MCE.sv
+F../src/MCE.sv
+!i122 9
+L0 1 8
+Z8 VDg1SIo80bB@j0V0VzS_@n1
+Z9 OL;L;2020.3;71
+r1
+!s85 0
+31
+!s108 1670794312.000000
+!s107 ../src/MCE.sv|
+!s90 +acc|../src/MCE.sv|
+!i113 0
+Z10 o+acc -L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+Z11 tCvgOpt 0
+n@m@c@e
+vMCE_tb
+R5
+!s110 1670794317
+!i10b 1
+!s100 [X>BXC8A6<zWW3[?35dS22
+R6
+IB[[dc?^jh@TgMAzcPT9_E1
+S1
+R7
+w1670793228
+8../src/MCE_tb.sv
+F../src/MCE_tb.sv
+!i122 10
+L0 1 54
+R8
+R9
+r1
+!s85 0
+31
+!s108 1670794317.000000
+!s107 ../src/MCE_tb.sv|
+!s90 +acc|../src/MCE_tb.sv|
+!i113 0
+R10
+R11
+n@m@c@e_tb
