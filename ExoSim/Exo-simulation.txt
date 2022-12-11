@@ -1,0 +1,83 @@
+Exo Simulation 05/12
+
+
+init
+H: (x,x)
+D: (x,x)
+Q: (x,x)
+0ns
+Delta 0
+P0
+H: (x,0)
+D: (x,0)
+Q: (x,x)
+m.à.j
+H: (0,0)
+D: (0,0)
+Q: (x,x)
+
+10ns
+Delta 1
+P1
+H: (0,1)
+m.à.j
+H: (1,1)
+Delta 2
+P2
+Q: (x,0)
+m.à.j
+Q; (0,0)
+Delta 3
+P3
+D: (0,1)
+
+20ns
+Delta 1
+P1
+H: (1,0)
+m.à.j
+H: (0,0)
+Delta 2
+P2
+P2 n'a aucun effet sur les signaux
+(P2 est exécuté car H change de valeur mais ne modifie rien car la condition (H==1) est fausse)
+
+25ns
+Delta 1
+P3
+m.à.j
+D: (1,1)
+
+30ns
+Delta 1
+P1
+H: (0,1)
+m.à.j
+H: (1,1)
+Delta 2
+P2
+Q: (0,1)
+m.à.j
+Q: (1,1)
+Delta 3
+P3
+D: (1,2)
+
+40ns
+Delta 1
+P1
+H: (1,0)
+m.à.j
+H: (0,0)
+Delta 2
+P2
+P2 n'a aucun effet sur les signaux
+
+45ns
+Delta 1
+P3
+m.à.j
+D: (2,2)
+
+50ns
+etc
