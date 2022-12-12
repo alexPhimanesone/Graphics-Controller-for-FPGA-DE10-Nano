@@ -9,28 +9,26 @@ module MED (DI, DSI, BYP, clk, DO);
     input              clk;
     output [WIDTH-1:0] DO;
     
-    logic [3:0] compteur;
     logic [WIDTH-1:0] V [0:WIDTH-1];
+    logic [WIDTH-1:0] MAX,MIN;
 
-    // initialiser compteur a 0
-    initial
-    begin
-        compteur = '0;    
-    end
+    MCE MCE0 (.A(V[SIZE-1]), .B(V[SIZE-2]), .MAX(MAX), .MIN(MIN));
 
     always_ff @(posedge clk)
-    begin
-        if (DSI == 1)
-        begin
-            V[compteur] =
-        end
-    end
-
-
-
-
-
-
-
-
+    if (DSI == 1)
+        V[0] <= DI;
+    else
+        V[0] <= MIN;
+    
+    always_ff @(posedge clk)
+        V[1:SIZE-2] <= V[0:SIZE-3];
+    
+    always_ff @(posedge clk)
+    if (BYP == 0)
+        V[SIZE-1] <= MAX;
+    else
+        V[SIZE-1] <= V[SIZE-2];
+    
+    assign DO = V[SIZE-1];
+    
 endmodule
