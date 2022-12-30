@@ -9,7 +9,7 @@ module MED (DI, DSI, BYP, clk, DO);
     input              clk;
     output [WIDTH-1:0] DO;
     
-    logic [WIDTH-1:0] V [0:WIDTH-1];
+    logic [WIDTH-1:0] V [0:SIZE-1];
     logic [WIDTH-1:0] MAX,MIN;
 
     MCE MCE0 (.A(V[SIZE-1]), .B(V[SIZE-2]), .MAX(MAX), .MIN(MIN));
