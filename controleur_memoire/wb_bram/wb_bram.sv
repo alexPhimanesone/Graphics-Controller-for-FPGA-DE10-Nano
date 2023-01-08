@@ -16,8 +16,16 @@ module wb_bram #(parameter mem_adr_width = 11) (
       logic [31:0] mem [0:SIZE];
 
       wire ack_w;
-      logic ack_r;
+      logic ack_r_classic;
+      logic ack_r_pipeline;
       wire [mem_adr_width + 1:2] adr;
+      logic [mem_adr_width + 1:2] start_adr;
+      logic [SIZE - 1: 0] cnt;
+      wire incr_bst;
+      wire end_bst;
+
+      assign incr_bst = (wb_s.cti == 3'b010);
+      assign end_bst  = (wb_s.cti == 3'b111);
 
       // Gestion de ACK
 
@@ -25,15 +33,39 @@ module wb_bram #(parameter mem_adr_width = 11) (
 
       always_ff @(posedge wb_s.clk)
       if (wb_s.rst)
-            ack_r <= 0;
+      begin
+            ack_r_classic <= 0;
+            ack_r_pipeline <= 0;
+      end
       else
-            ack_r <= ~wb_s.we & wb_s.stb & ~ack_r;
+      begin
+            ack_r_classic  <= ~wb_s.we & wb_s.stb & ~ack_r_classic;
+            ack_r_pipeline <= ~wb_s.we & wb_s.stb & incr_bst;
+      end
 
-      assign wb_s.ack = ack_w | ack_r;
+      assign wb_s.ack = ack_w | ack_r_classic | ack_r_pipeline;
+      
+      // Gestion des adresses
+
+      always_ff @(posedge wb_s.clk)
+      if (wb_s.rst)
+            cnt <= 0;
+      else
+      begin
+            if (wb_s.stb && incr_bst)
+                  cnt <= cnt + 1;
+            else
+                  cnt <= 0;
+      end
+
+      always_ff @(posedge wb_s.clk)
+            if (wb_s.stb && cnt == 0)
+                  start_adr <= wb_s.adr[mem_adr_width + 1:2];
+
+
+      assign adr = wb_s.adr[mem_adr_width + 1:2];
       
       // Gestion de la mémoire
-      
-      assign adr = wb_s.adr[mem_adr_width + 1:2];
 
       always_ff @(posedge wb_s.clk)
       begin
@@ -48,7 +80,10 @@ module wb_bram #(parameter mem_adr_width = 11) (
                   if (wb_s.sel[3])
                         mem[adr][31:24] <= wb_s.dat_ms[31:24];
             end
-            wb_s.dat_sm <= mem[adr];
+            if (cnt == 0)
+                  wb_s.dat_sm <= mem[adr];
+            else
+                  wb_s.dat_sm <= mem[start_adr + cnt];
       end
 
       // On force RTY et ERR a 0
