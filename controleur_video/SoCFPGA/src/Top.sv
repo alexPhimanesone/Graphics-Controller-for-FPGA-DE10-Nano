@@ -6,7 +6,7 @@ module Top (
 	input  wire  [1:0]	KEY,
 	output logic [7:0]	LED,
 	input  wire	 [3:0]	SW,
-    // Les signaux du support matériel son regroupés dans une interface
+    // Les signaux du support matériel sont regroupés dans une interface
     hws_if.master       hws_ifm
 );
 
@@ -74,6 +74,39 @@ assign wshb_if_sdram.bte = '0 ;
 //------- Code Eleves ------
 //--------------------------
 
+`ifdef SIMULATION
+  localparam hcmpt = 6;
+`else
+  localparam hcmpt = 26;
+`endif
+
+logic [hcmpt:0] led_cnt;
+
+// Recopier KEY[0] dans LED[0]
+
+always_comb
+    LED[0] = KEY[0];
+
+// Faire clignoter LED[1] à 1Hz
+
+always_ff @(posedge sys_clk)
+if (sys_rst)
+    led_cnt <= 0;
+else
+    led_cnt <= led_cnt + 1;
+
+always_comb
+    LED[1] = (led_cnt == 0);
+
+
 
 
 endmodule
+
+/*
+
+Pb du reset asynchrone avec délais
+délais -> pb
+=> resynchroniser la sortie du reset
+
+*/
