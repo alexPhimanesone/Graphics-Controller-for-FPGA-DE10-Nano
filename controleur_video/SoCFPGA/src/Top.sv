@@ -90,22 +90,6 @@ logic [hcmpt1:0] led1_cnt;
 logic [hcmpt2:0] led2_cnt;
 logic            pixel_rst;
 
-// Recopier KEY[0] dans LED[0]
-
-always_comb
-    LED[0] = KEY[0];
-
-// Faire clignoter LED[1] à 1Hz
-
-always_ff @(posedge sys_clk)
-if (sys_rst)
-    led1_cnt <= 0;
-else
-    led1_cnt <= led1_cnt + 1;
-
-always_comb
-    LED[1] = (led1_cnt == 0);
-
 // Génération de pixel_rst avec 2 bascules
 
 logic Q;
@@ -122,6 +106,22 @@ if (sys_rst)
 else
     pixel_rst <= Q;
 
+// Recopier KEY[0] dans LED[0]
+
+always_comb
+    LED[0] = KEY[0];
+
+// Faire clignoter LED[1] à 1Hz
+
+always_ff @(posedge sys_clk)
+if (sys_rst)
+    led1_cnt <= 0;
+else
+    led1_cnt <= led1_cnt + 1;
+
+always_comb
+    LED[1] = (led1_cnt[hcmpt1] == 1);
+
 // Faire clignoter LED[2] avec pixel_clk et pixel_rst
 
 always_ff @(posedge pixel_clk)
@@ -131,7 +131,7 @@ else
     led2_cnt <= led2_cnt + 1;
 
 always_comb
-    LED[2] = (led2_cnt == 0);
+    LED[2] = (led2_cnt[hcmpt2] == 1);
 
 
 
@@ -140,8 +140,6 @@ endmodule
 
 /*
 
-Pb du reset asynchrone avec délais
-délais -> pb
-=> resynchroniser la sortie du reset
+
 
 */
