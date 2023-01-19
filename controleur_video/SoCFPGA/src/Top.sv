@@ -74,13 +74,21 @@ assign wshb_if_sdram.bte = '0 ;
 //------- Code Eleves ------
 //--------------------------
 
+// Commandes préprocesseur
+
 `ifdef SIMULATION
-  localparam hcmpt = 6;
+  localparam hcmpt1 = 6;
+  localparam hcmpt2 = 4;
 `else
-  localparam hcmpt = 26;
+  localparam hcmpt1 = 26;
+  localparam hcmpt2 = 24;
 `endif
 
-logic [hcmpt:0] led_cnt;
+// Déclaration des signaux internes
+
+logic [hcmpt1:0] led1_cnt;
+logic [hcmpt2:0] led2_cnt;
+logic            pixel_rst;
 
 // Recopier KEY[0] dans LED[0]
 
@@ -91,12 +99,39 @@ always_comb
 
 always_ff @(posedge sys_clk)
 if (sys_rst)
-    led_cnt <= 0;
+    led1_cnt <= 0;
 else
-    led_cnt <= led_cnt + 1;
+    led1_cnt <= led1_cnt + 1;
 
 always_comb
-    LED[1] = (led_cnt == 0);
+    LED[1] = (led1_cnt == 0);
+
+// Génération de pixel_rst avec 2 bascules
+
+logic Q;
+
+always_ff @(posedge pixel_clk or posedge sys_rst)
+if (sys_rst)
+    Q <= 1;
+else
+    Q <= 0;
+
+always_ff @(posedge pixel_clk or posedge sys_rst)
+if (sys_rst)
+    pixel_rst <= 1;
+else
+    pixel_rst <= Q;
+
+// Faire clignoter LED[2] avec pixel_clk et pixel_rst
+
+always_ff @(posedge pixel_clk)
+if (pixel_rst)
+    led2_cnt <= 0;
+else
+    led2_cnt <= led2_cnt + 1;
+
+always_comb
+    LED[2] = (led2_cnt == 0);
 
 
 

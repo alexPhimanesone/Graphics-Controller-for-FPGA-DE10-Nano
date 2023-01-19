@@ -26,8 +26,10 @@ initial
 initial
 begin
     KEY[0] = 1;
-    #128 KEY[0] = 0;
-    #128 KEY[0] = 1;
+    #128
+    KEY[0] = 0;
+    #128
+    KEY[0] = 1;
 end
 
 initial
