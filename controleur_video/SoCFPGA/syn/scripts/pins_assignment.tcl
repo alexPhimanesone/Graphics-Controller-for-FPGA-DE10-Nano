@@ -28,9 +28,10 @@ set_global_assignment -name RESERVE_ASDO_AFTER_CONFIGURATION "AS OUTPUT DRIVING 
 # Cela doit évidemment être en fait en cohérence avec ce que l'on sait du FPGA et des circuits
 # qui lui sont reliés. La ligne ci-dessous est un exemple d'assignation.
 #     set_location_assignment PIN_M20 -to address[10] -comment "Address pin to Second FPGA"
-#
 
-#source ./scripts/pins_assignment_vga.tcl
+
+# Les E/S du controleur VGA
+source ./scripts/pins_assignment_vga.tcl
 
 ###################################################
 ### PLACEZ ICI VOS DEFINITIONS
