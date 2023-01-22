@@ -58,20 +58,20 @@ end
 always_ff @(posedge pixel_clk)
 if (pixel_rst)
 begin
-    video_ifm.HS <= 0;
-    video_ifm.VS <= 0;
+    video_ifm.HS <= 1;
+    video_ifm.VS <= 1;
 end
 else
 begin
-    video_ifm.HS <= ~((pixel_cnt >= HFP) && (pixel_cnt <= HBP));
-    video_ifm.VS <= ~((ln_cnt >= VFP) && (pixel_cnt <= VBP));
+    video_ifm.HS <= ~((pixel_cnt >= HFP) && (pixel_cnt < HFP + HPULSE));
+    video_ifm.VS <= ~((ln_cnt >= VFP) && (ln_cnt < VFP + VPULSE));
 end
 
 always_ff @(posedge pixel_clk)
 if (pixel_rst)
-    video_ifm.BLANK <= 0;
+    video_ifm.BLANK <= 1;
 else
-    video_ifm.BLANK <= ~((pixel_cnt <= HBLANK) || (ln_cnt <= VBLANK));
+    video_ifm.BLANK <= ~((pixel_cnt < HBLANK) || (ln_cnt < VBLANK));
 
 // Generation d'une mire
 
