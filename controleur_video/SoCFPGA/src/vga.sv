@@ -63,8 +63,8 @@ begin
 end
 else
 begin
-    video_ifm.HS <= ((pixel_cnt >= HFP) && (pixel_cnt <= HBP));
-    video_ifm.VS <= ((ln_cnt >= VFP) && (pixel_cnt <= VBP));
+    video_ifm.HS <= ~((pixel_cnt >= HFP) && (pixel_cnt <= HBP));
+    video_ifm.VS <= ~((ln_cnt >= VFP) && (pixel_cnt <= VBP));
 end
 
 always_ff @(posedge pixel_clk)
