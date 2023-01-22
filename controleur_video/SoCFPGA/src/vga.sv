@@ -30,21 +30,22 @@ logic [$clog2(HDISP):0]        pixel_cnt_disp;
 
 always_ff @(posedge pixel_clk)
 if (pixel_rst)
-    ln_cnt <= 0;
-else
-    if (ln_cnt >= TOTAL_HEIGHT-1)
-        ln_cnt <= 0;
-    else
-        ln_cnt <= ln_cnt + 1;
-
-always_ff @(posedge pixel_clk)
-if (pixel_rst)
     pixel_cnt <= 0;
 else
     if (pixel_cnt >= TOTAL_WIDTH-1)
         pixel_cnt <= 0;
     else
         pixel_cnt <= pixel_cnt + 1;
+
+always_ff @(posedge pixel_clk)
+if (pixel_rst)
+    ln_cnt <= 0;
+else
+    if (pixel_cnt == TOTAL_WIDTH-1)
+        if (ln_cnt >= TOTAL_HEIGHT-1)
+            ln_cnt <= 0;
+        else
+            ln_cnt <= ln_cnt + 1;
 
 always_comb
 begin
@@ -80,7 +81,7 @@ if (pixel_rst)
 else
 begin
     video_ifm.RGB <= {8'h0, 8'h0, 8'h0};
-    if ((ln_cnt_disp[2:0] == 3'b0) || (pixel_cnt_disp[2:0] == 3'b0))
+    if ((ln_cnt_disp[3:0] == 4'b0) || (pixel_cnt_disp[3:0] == 4'b0))
         video_ifm.RGB <= {8'hff, 8'hff, 8'hff};
 end
 
