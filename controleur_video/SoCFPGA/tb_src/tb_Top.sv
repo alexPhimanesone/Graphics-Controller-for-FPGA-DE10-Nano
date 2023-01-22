@@ -13,8 +13,10 @@ logic [3:0]	SW;
 // Interface vers le support matériel
 hws_if      hws_ifm();
 
+video_if video_if0();
+
 // Instance du module Top
-Top Top0(.*) ;
+Top #(.HDISP(160), .VDISP(90)) Top0 (.FPGA_CLK1_50(FPGA_CLK1_50), .KEY(KEY), .LED(LED), .SW(SW), .video_ifm(video_if0), .hws_ifm(hws_ifm)) ;
 
 ///////////////////////////////
 //  Code élèves
@@ -35,6 +37,6 @@ end
 initial
     #4ms $stop;
 
-
+screen #(.mode(13), .X(160), .Y(90)) screen0 (.video_ifs(video_if0));
 
 endmodule

@@ -1,11 +1,14 @@
 `default_nettype none
 
-module Top (
+module Top #(
+    parameter           HDISP = 800,
+    parameter           VDISP = 480) (
     // Les signaux externes de la partie FPGA
 	input  wire         FPGA_CLK1_50,
 	input  wire  [1:0]	KEY,
 	output logic [7:0]	LED,
 	input  wire	 [3:0]	SW,
+    video_if.master     video_ifm,
     // Les signaux du support matériel sont regroupés dans une interface
     hws_if.master       hws_ifm
 );
@@ -106,12 +109,10 @@ if (sys_rst)
 else
     pixel_rst <= Q;
 
-// Recopier KEY[0] dans LED[0]
+// Comportement de LED[0], LED[1] et LED[2]
 
 always_comb
     LED[0] = KEY[0];
-
-// Faire clignoter LED[1] à 1Hz
 
 always_ff @(posedge sys_clk)
 if (sys_rst)
@@ -122,8 +123,6 @@ else
 always_comb
     LED[1] = (led1_cnt[hcmpt1] == 1);
 
-// Faire clignoter LED[2] avec pixel_clk et pixel_rst
-
 always_ff @(posedge pixel_clk)
 if (pixel_rst)
     led2_cnt <= 0;
@@ -133,6 +132,9 @@ else
 always_comb
     LED[2] = (led2_cnt[hcmpt2] == 1);
 
+// Instanciation de vga
+
+vga #(.HDISP(HDISP), .VDISP(VDISP)) vga1 (.pixel_clk(pixel_clk), .pixel_rst(pixel_rst), .video_ifm(video_ifm));
 
 
 
