@@ -71,7 +71,7 @@ always_ff @(posedge pixel_clk)
 if (pixel_rst)
     video_ifm.BLANK <= 0;
 else
-    video_ifm.BLANK <= ((pixel_cnt <= HBLANK) || (ln_cnt <= VBLANK));
+    video_ifm.BLANK <= ~((pixel_cnt <= HBLANK) || (ln_cnt <= VBLANK));
 
 // Generation d'une mire
 
