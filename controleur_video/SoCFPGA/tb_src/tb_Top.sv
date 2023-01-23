@@ -35,7 +35,7 @@ begin
 end
 
 initial
-    #4ms $stop;
+    #8ms $stop;
 
 screen #(.mode(13), .X(160), .Y(90)) screen0 (.video_ifs(video_if0));
 

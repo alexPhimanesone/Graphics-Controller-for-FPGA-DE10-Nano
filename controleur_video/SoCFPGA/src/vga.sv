@@ -5,7 +5,8 @@ module vga #(
     parameter       VDISP = 480) (
     input wire      pixel_clk,
     input wire      pixel_rst,
-    video_if.master video_ifm
+    video_if.master video_ifm,
+    wshb_if.master  wshb_ifm
 );
 
 localparam HFP          = 40;
@@ -25,6 +26,10 @@ logic [$clog2(TOTAL_HEIGHT):0] ln_cnt;
 logic [$clog2(TOTAL_WIDTH):0]  pixel_cnt;
 logic [$clog2(VDISP):0]        ln_cnt_disp;
 logic [$clog2(HDISP):0]        pixel_cnt_disp;
+
+// Gestion de l'horloge
+
+assign video_ifm.CLK = pixel_clk;
 
 // Comportement des compteurs
 
@@ -85,9 +90,17 @@ begin
         video_ifm.RGB <= {8'hff, 8'hff, 8'hff};
 end
 
+// Maître Wishbone bidon
 
+assign wshb_ifm.dat_ms = 32'hBABECAFE;
+assign wshb_ifm.adr    = '0;
+assign wshb_ifm.cyc    = 1'b1;
+assign wshb_ifm.sel    = 4'b1111;
+assign wshb_ifm.stb    = 1'b1;
+assign wshb_ifm.we     = 1'b1;
+assign wshb_ifm.cti    = '0;
+assign wshb_ifm.bte    = '0;
 
-assign video_ifm.CLK = pixel_clk;
 
 
 
