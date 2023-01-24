@@ -9,6 +9,8 @@ module vga #(
     wshb_if.master  wshb_ifm
 );
 
+// Pour l'affichage
+
 localparam HFP          = 40;
 localparam HPULSE       = 48;
 localparam HBP          = 40;
@@ -19,6 +21,11 @@ localparam TOTAL_WIDTH  = HFP + HPULSE + HBP + HDISP;
 localparam TOTAL_HEIGHT = VFP + VPULSE + VBP + VDISP;
 localparam HBLANK       = TOTAL_WIDTH - HDISP;
 localparam VBLANK       = TOTAL_HEIGHT - VDISP;
+
+// Pour l'ecriture en FIFO
+
+localparam DATA_WIDTH = 32;
+
 
 //==================================
 // Déclaration des signaux internes
@@ -34,6 +41,19 @@ logic [$clog2(HDISP):0]        pixel_cnt_disp;
 // Pour la lecture dans la SDRAM
 
 logic [31:0] pixel_adr;
+
+// Pour l'ecriture en FIFO
+
+wire                   rclk; 
+wire                   read; 
+wire                   wclk;
+logic [DATA_WIDTH-1:0] wdata;
+wire                   write;
+
+logic [DATA_WIDTH-1:0] rdata;
+logic                  rempty;
+logic                  wfull;
+logic                  walmost_full;
 
 //===========
 // Affichage
@@ -102,6 +122,7 @@ else
 //        video_ifm.RGB <= {8'hff, 8'hff, 8'hff};
 //end
 
+
 //===================
 // Lecture en SDRAM
 //===================
@@ -113,31 +134,61 @@ assign wshb_ifm.sel    = 4'b0111;
 assign wshb_ifm.cti    = '0;
 assign wshb_ifm.bte    = '0;
 
-//always_ff @(posedge wshb_ifm.clk)
-//if (wshb_ifm.rst)
-//    (ecrire dans la fifo) <= {8'h0, 8'h0, 8'h0};
-//else
-//    (ecrire dans la fifo) <= wshb_ifm.ack & wshb_ifm.dat_sm[23:0]; 
+// Calcul de l'adresse de lecture
 
 always_ff @(posedge wshb_ifm.clk)
 if (wshb_ifm.rst)
     pixel_adr <= 32'b0;
 else
-    if (pixel_adr >= VDISP * HDISP - 1)
-        pixel_adr <= 32'b0;
-    else
-        if (wshb_ifm.ack)
+    if (wshb_ifm.ack)
+        if (pixel_adr >= VDISP * HDISP - 1)
+            pixel_adr <= 32'b0;
+        else
             pixel_adr <= pixel_adr + 1;
 
 assign wshb_ifm.adr = 4 * pixel_adr;
 
-//pour l'instant on a pas le signal (fifo non pleine) donc simple
-//always_ff @(posedge wshb_ifm.clk)
-//if (wshb_ifm.rst)
-//    wshb_ifm.stb <= 1'b0;
-//else
-//    wshb_fm.stb <= (fifo non pleine)
-assign wshb_ifm.stb = 1'b1;
+// Controleur de lecture
+
+always_ff @(posedge wshb_ifm.clk)
+if (wshb_ifm.rst)
+    wshb_ifm.stb <= 1'b0;
+else
+    wshb_ifm.stb <= ~wfull;
+
+
+//===================
+// Ecriture en FIFO
+//===================
+
+async_fifo #(.DATA_WIDTH(DATA_WIDTH)) async_fifo1 (
+    .rst(wshb_ifm.rst),
+    .rclk(rclk),
+    .read(read),
+    .rdata(rdata),
+    .rempty(rempty),
+    .wclk(wshb_ifm.clk),
+    .wdata(wdata),
+    .write(wshb_ifm.ack),
+    .wfull(wfull),
+    .walmost_full(walmost_full)
+);
+
+always_ff @(posedge wshb_ifm.clk)
+if (wshb_ifm.rst)
+    wdata <= {8'h0, 8'h0, 8'h0};
+else
+    wdata <= wshb_ifm.dat_sm[23:0];
+
+
+
+
+
+
+
+
+
+
 
 
 endmodule
