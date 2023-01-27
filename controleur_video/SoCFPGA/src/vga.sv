@@ -22,42 +22,43 @@ localparam TOTAL_HEIGHT = VFP + VPULSE + VBP + VDISP;
 localparam HBLANK       = TOTAL_WIDTH - HDISP;
 localparam VBLANK       = TOTAL_HEIGHT - VDISP;
 
-// Pour l'ecriture en FIFO
+// Pour la FIFO
 
 localparam DATA_WIDTH = 32;
 
 
-//==================================
+//====================================================
 // Déclaration des signaux internes
-//==================================
+//====================================================
 
 // Pour l'affichage
 
 logic [$clog2(TOTAL_HEIGHT):0] ln_cnt;
 logic [$clog2(TOTAL_WIDTH):0]  pixel_cnt;
-logic [$clog2(VDISP):0]        ln_cnt_disp;
-logic [$clog2(HDISP):0]        pixel_cnt_disp;
+logic [$clog2(TOTAL_HEIGHT):0] ln_cnt_disp;
+logic [$clog2(TOTAL_WIDTH):0]  pixel_cnt_disp;
 
 // Pour la lecture dans la SDRAM
 
 logic [31:0] pixel_adr;
 
-// Pour l'ecriture en FIFO
+// Pour la FIFO
 
-wire                   rclk; 
-wire                   read; 
-wire                   wclk;
-logic [DATA_WIDTH-1:0] wdata;
-wire                   write;
+wire                   read;
+wire [DATA_WIDTH-1:0]  wdata;
 
 logic [DATA_WIDTH-1:0] rdata;
 logic                  rempty;
 logic                  wfull;
 logic                  walmost_full;
 
-//===========
+logic                  wfull_pixel;
+logic                  preload; // avant un affichage, indique si la pile est remplie
+
+
+//====================================================
 // Affichage
-//===========
+//====================================================
 
 // Gestion de l'horloge
 
@@ -110,22 +111,10 @@ if (pixel_rst)
 else
     video_ifm.BLANK <= ~((pixel_cnt < HBLANK) || (ln_cnt < VBLANK));
 
-// Generation d'une mire
 
-//always_ff @(posedge pixel_clk)
-//if (pixel_rst)
-//    video_ifm.RGB <= {8'h0, 8'h0, 8'h0};
-//else
-//begin
-//    video_ifm.RGB <= {8'h0, 8'h0, 8'h0};
-//    if ((ln_cnt_disp[3:0] == 4'b0) || (pixel_cnt_disp[3:0] == 4'b0))
-//        video_ifm.RGB <= {8'hff, 8'hff, 8'hff};
-//end
-
-
-//===================
+//====================================================
 // Lecture en SDRAM
-//===================
+//====================================================
 
 assign wshb_ifm.cyc    = 1'b1;
 assign wshb_ifm.we     = 1'b0;
@@ -148,22 +137,18 @@ else
 
 assign wshb_ifm.adr = 4 * pixel_adr;
 
-// Controleur de lecture
+// Controleur de lecture en SDRAM
 
-always_ff @(posedge wshb_ifm.clk)
-if (wshb_ifm.rst)
-    wshb_ifm.stb <= 1'b0;
-else
-    wshb_ifm.stb <= ~wfull;
+assign wshb_ifm.stb = ~wfull;
 
 
-//===================
-// Ecriture en FIFO
-//===================
+//====================================================
+// Ecriture et lecture de la FIFO
+//====================================================
 
 async_fifo #(.DATA_WIDTH(DATA_WIDTH)) async_fifo1 (
     .rst(wshb_ifm.rst),
-    .rclk(rclk),
+    .rclk(pixel_clk),
     .read(read),
     .rdata(rdata),
     .rempty(rempty),
@@ -174,26 +159,43 @@ async_fifo #(.DATA_WIDTH(DATA_WIDTH)) async_fifo1 (
     .walmost_full(walmost_full)
 );
 
-always_ff @(posedge wshb_ifm.clk)
-if (wshb_ifm.rst)
-    wdata <= {8'h0, 8'h0, 8'h0};
+// Ecriture en FIFO
+
+assign wdata = wshb_ifm.dat_sm[23:0];
+
+// Lecture de la FIFO
+
+assign video_ifm.RGB = rdata[23:0];
+
+// Rééchantillonnage du signal wfull dans le domaine pixel_clk
+
+logic Q;
+
+always_ff @(posedge pixel_clk)
+if (pixel_rst)
+    Q <= 0;
 else
-    wdata <= wshb_ifm.dat_sm[23:0];
+    Q <= wfull;
 
+always_ff @(posedge pixel_clk)
+if (pixel_rst)
+    wfull_pixel <= 0;
+else
+    wfull_pixel <= Q;
 
+// Comportement du signal preload
 
+always_ff @(posedge pixel_clk)
+if (wshb_ifm.rst)
+    preload <= 0;
+else
+    if (wfull_pixel & ~video_ifm.BLANK)
+        preload <= 1;
 
+// Controle de la lecture
 
-
-
-
-
-
+assign read = video_ifm.BLANK & preload & ~rempty;
 
 
 endmodule
 
-/*
-compteur dep de ack, +4 que si ack
-droit de faire une requete que si la fifo n'est pas pleine
-*/
