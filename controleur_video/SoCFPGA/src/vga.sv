@@ -116,7 +116,6 @@ else
 // Lecture en SDRAM
 //====================================================
 
-assign wshb_ifm.cyc    = 1'b1;
 assign wshb_ifm.we     = 1'b0;
 assign wshb_ifm.sel    = 4'b0111;
 
@@ -139,6 +138,7 @@ assign wshb_ifm.adr = 4 * pixel_adr;
 
 // Controleur de lecture en SDRAM
 
+assign wshb_ifm.cyc = ~wfull;
 assign wshb_ifm.stb = ~wfull;
 
 

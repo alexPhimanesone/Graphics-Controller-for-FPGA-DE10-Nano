@@ -36,6 +36,9 @@ sys_pll  sys_pll_inst(
 //=============================
 wshb_if #( .DATA_BYTES(4)) wshb_if_sdram  (sys_clk, sys_rst);
 wshb_if #( .DATA_BYTES(4)) wshb_if_stream (sys_clk, sys_rst);
+wshb_if #( .DATA_BYTES(4)) wshb_if_mire   (sys_clk, sys_rst);
+wshb_if #( .DATA_BYTES(4)) wshb_if_vga    (sys_clk, sys_rst);
+
 
 //=============================
 //  Le support matériel
@@ -59,6 +62,7 @@ assign wshb_if_stream.dat_sm = '0 ;
 assign wshb_if_stream.err =  1'b0 ;
 assign wshb_if_stream.rty =  1'b0 ;
 
+
 //=============================
 // Neutralisation de l'interface SDRAM
 //=============================
@@ -70,6 +74,7 @@ assign wshb_if_stream.rty =  1'b0 ;
 //assign wshb_if_sdram.sel = '0 ;
 //assign wshb_if_sdram.cti = '0 ;
 //assign wshb_if_sdram.bte = '0 ;
+
 
 //--------------------------
 //------- Code Eleves ------
@@ -130,15 +135,24 @@ else
 always_comb
     LED[2] = (led2_cnt[hcmpt2] == 1);
 
-// Instanciation de vga
+// Instanciations
 
 vga #(.HDISP(HDISP), .VDISP(VDISP)) vga1 (
     .pixel_clk(pixel_clk),
     .pixel_rst(pixel_rst),
     .video_ifm(video_ifm),
-    .wshb_ifm(wshb_if_sdram)
+    .wshb_ifm(wshb_if_vga)
 );
 
+mire #(.HDISP(HDISP), .VDISP(VDISP)) mire1 (
+    .wshb_ifm(wshb_if_mire)
+);
+
+wshb_intercon wshb_intercon1 (
+    .wshb_ifs_mire(wshb_if_mire),
+    .wshb_ifs_vga(wshb_if_vga),
+    .wshb_ifm(wshb_if_sdram)
+);
 
 
 endmodule
