@@ -36,8 +36,8 @@ sys_pll  sys_pll_inst(
 //=============================
 wshb_if #( .DATA_BYTES(4)) wshb_if_sdram  (sys_clk, sys_rst);
 wshb_if #( .DATA_BYTES(4)) wshb_if_stream (sys_clk, sys_rst);
-wshb_if #( .DATA_BYTES(4)) wshb_if_mire   (sys_clk, sys_rst);
 wshb_if #( .DATA_BYTES(4)) wshb_if_vga    (sys_clk, sys_rst);
+//wshb_if #( .DATA_BYTES(4)) wshb_if_mire   (sys_clk, sys_rst);
 
 
 //=============================
@@ -53,14 +53,12 @@ hw_support hw_support_inst (
  );
 
 //=============================
-// On neutralise l'interface
-// du flux video pour l'instant
-// A SUPPRIMER PLUS TARD
+// Neutralisation de l'interface du flux video
 //=============================
-assign wshb_if_stream.ack = 1'b1;
-assign wshb_if_stream.dat_sm = '0 ;
-assign wshb_if_stream.err =  1'b0 ;
-assign wshb_if_stream.rty =  1'b0 ;
+//assign wshb_if_stream.ack = 1'b1;
+//assign wshb_if_stream.dat_sm = '0 ;
+//assign wshb_if_stream.err =  1'b0 ;
+//assign wshb_if_stream.rty =  1'b0 ;
 
 
 //=============================
@@ -144,12 +142,12 @@ vga #(.HDISP(HDISP), .VDISP(VDISP)) vga1 (
     .wshb_ifm(wshb_if_vga)
 );
 
-mire #(.HDISP(HDISP), .VDISP(VDISP)) mire1 (
-    .wshb_ifm(wshb_if_mire)
-);
+//mire #(.HDISP(HDISP), .VDISP(VDISP)) mire1 (
+//    .wshb_ifm(wshb_if_mire)
+//);
 
 wshb_intercon wshb_intercon1 (
-    .wshb_ifs_mire(wshb_if_mire),
+    .wshb_ifs_mire(wshb_if_stream),
     .wshb_ifs_vga(wshb_if_vga),
     .wshb_ifm(wshb_if_sdram)
 );

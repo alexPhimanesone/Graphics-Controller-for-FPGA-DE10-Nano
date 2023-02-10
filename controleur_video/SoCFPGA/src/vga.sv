@@ -25,6 +25,7 @@ localparam VBLANK       = TOTAL_HEIGHT - VDISP;
 // Pour la FIFO
 
 localparam DATA_WIDTH = 32;
+localparam ALMOST_FULL_THRESHOLD = 224;
 
 
 //====================================================
@@ -138,15 +139,26 @@ assign wshb_ifm.adr = 4 * pixel_adr;
 
 // Controleur de lecture en SDRAM
 
-assign wshb_ifm.cyc = ~wfull;
-assign wshb_ifm.stb = ~wfull;
+always_ff @(posedge wshb_ifm.clk)
+if (wshb_ifm.rst)
+    wshb_ifm.cyc <= 0;
+else
+    if (~walmost_full)
+        wshb_ifm.cyc <= 1;
+    else if (wfull)
+        wshb_ifm.cyc <= 0;
+
+assign wshb_ifm.stb = wshb_ifm.cyc & ~wfull;
 
 
 //====================================================
 // Ecriture et lecture de la FIFO
 //====================================================
 
-async_fifo #(.DATA_WIDTH(DATA_WIDTH)) async_fifo1 (
+async_fifo #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ALMOST_FULL_THRESHOLD(ALMOST_FULL_THRESHOLD))
+    async_fifo1 (
     .rst(wshb_ifm.rst),
     .rclk(pixel_clk),
     .read(read),
