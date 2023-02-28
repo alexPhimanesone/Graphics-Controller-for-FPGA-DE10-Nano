@@ -2,7 +2,7 @@
 
 The DE10-Nano is based on a Cyclone V SoC FPGA. This circuit has the characteristic of regrouping in the same box a classic FPGA architecture and a microprocessor block named HPS (for Hard Processor System) composed of a double ARM Cortex A9 processor.
 
-This project aims to display on an LCD screen the images sent by the microprocessor integrated into the circuit. The control is handled by the FPGA.
+The project "controleur_video" aims to display on an LCD screen the images sent by the microprocessor integrated into the circuit. The control is handled by the FPGA.
 
 * A Linux system (on the HPS) transmits to the FPGA a video stream.
 * The FPGA tries to write the video stream into the image memory.
